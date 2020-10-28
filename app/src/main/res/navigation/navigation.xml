@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation"
+    app:startDestination="@id/cameras_fragment">
+    <fragment
+        android:id="@+id/cameras_fragment"
+        android:name="com.miguelzaragoza.upm.dam.ui.cameras.CamerasFragment"
+        android:label="CamerasFragment"
+        tools:layout="@layout/fragment_cameras"/>
+</navigation>
