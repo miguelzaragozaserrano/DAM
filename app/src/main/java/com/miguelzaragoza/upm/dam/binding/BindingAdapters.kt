@@ -25,7 +25,7 @@ fun bindImage(imgView: ImageView, imgUrl: String?){
 }
 
 @BindingAdapter("listCameras")
-fun bindDecksRecyclerView(recyclerView: RecyclerView, decks: List<Camera>?){
+fun bindRecyclerView(recyclerView: RecyclerView, cameras: List<Camera>?){
     val adapter = recyclerView.adapter as CamerasAdapter
-    adapter.submitList(decks)
+    adapter.submitList(cameras)
 }

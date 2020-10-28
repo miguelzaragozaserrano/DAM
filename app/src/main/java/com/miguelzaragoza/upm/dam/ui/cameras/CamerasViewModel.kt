@@ -24,15 +24,14 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
     val cameras: LiveData<List<Camera>>
         get() = _cameras
 
-    var coordinates: String = ""
-    var url: String = ""
-    var name: String = ""
-
     init {
         getCameras()
     }
 
     private fun getCameras(){
+        var coordinates = ""
+        var url = ""
+        var name = ""
         viewModelScope.launch {
             var list = ArrayList<Camera>()
             try{
@@ -56,7 +55,7 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
                             }
                             "coordinates" -> {
                                 coordinates = parser.nextText()
-                                list.add(Camera(name, url, coordinates))
+                                list.add(Camera(name, url, coordinates, false))
                             }
                         }
                     }

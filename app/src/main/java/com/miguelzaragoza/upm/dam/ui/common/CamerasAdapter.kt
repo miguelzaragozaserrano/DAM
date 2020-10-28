@@ -2,7 +2,9 @@ package com.miguelzaragoza.upm.dam.ui.common
 
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.widget.RadioButton
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -10,22 +12,32 @@ import com.miguelzaragoza.upm.dam.databinding.ListViewItemBinding
 import com.miguelzaragoza.upm.dam.model.Camera
 
 class CamerasAdapter(private val onClickListener: OnClickListener): ListAdapter<Camera, CamerasViewHolder>(CamerasDiffCallback()) {
+
+    private var lastCamera: Camera? = null
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CamerasViewHolder {
         return CamerasViewHolder.from(parent)
     }
 
     override fun onBindViewHolder(holder: CamerasViewHolder, position: Int) {
         val camera = getItem(position)
+        if(camera.status) lastCamera = camera
         holder.itemView.setOnClickListener {
-            onClickListener.onClick(camera)
+            if(lastCamera != camera){
+                camera.status = true
+                lastCamera?.status = false
+                lastCamera = camera
+                onClickListener.onClick(camera)
+                notifyDataSetChanged()
+            }
         }
         holder.bind(camera)
     }
 }
 
 class CamerasViewHolder private constructor(val binding: ListViewItemBinding): RecyclerView.ViewHolder(binding.root){
-    fun bind(item: Camera) {
-        binding.camera = item
+    fun bind(camera: Camera) {
+        binding.camera = camera
         binding.executePendingBindings()
     }
     companion object {
