@@ -13,11 +13,21 @@ import kotlinx.coroutines.withContext
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 import java.io.IOException
+import java.io.InputStream
 
 class CamerasViewModel(application: Application): AndroidViewModel(application) {
 
     private val context = application.applicationContext
+
     private val coroutineMain = CoroutineScope(Dispatchers.Main)
+    private val coroutineIO = CoroutineScope(Dispatchers.IO)
+
+    private var list = ArrayList<Camera>()
+    private lateinit var inputStream: InputStream
+    private lateinit var coordinates: String
+    private lateinit var url: String
+    private lateinit var name: String
+    private lateinit var parser: XmlPullParser
 
     private val _camera = MutableLiveData<Camera>()
     val camera: LiveData<Camera>
@@ -32,51 +42,65 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
         get() = _cameras
 
     init {
-        coroutineMain.launch {
+        coroutineIO.launch {
+            openFile()
             getCameras()
+        }
+        coroutineMain.launch {
             _lastCamera.value = null
+            _cameras.value = list
         }
     }
 
+    private fun openFile() {
+        inputStream = context.assets.open("CCTV.kml")
+    }
+
+    private fun getNext(): Int = parser.next()
+    private fun getNextTag(): Int = parser.nextTag()
+    private fun getNextText(): String = parser.nextText()
+
     private suspend fun getCameras(){
-        var coordinates: String
-        var url = ""
-        var name = ""
-        val list = ArrayList<Camera>()
-        withContext(Dispatchers.IO) {
-            try{
-                val parser = Xml.newPullParser()
-                val inputStream = context.assets.open("CCTV.kml")
-                parser.setInput(inputStream, null)
-                var typeEvent: Int
-                do{
-                    typeEvent = parser.eventType
-                    if(typeEvent == XmlPullParser.START_TAG){
-                        when(parser.name){
-                            "Data" -> {
-                                if(parser.getAttributeValue(0) == "Nombre"){
-                                    parser.nextTag()
-                                    name = parser.nextText()
+        try{
+            parser = Xml.newPullParser()
+            parser.setInput(inputStream, null)
+            var typeEvent: Int
+            do{
+                typeEvent = parser.eventType
+                if(typeEvent == XmlPullParser.START_TAG){
+                    when(parser.name){
+                        "Data" -> {
+                            if(parser.getAttributeValue(0) == "Nombre"){
+                                withContext(Dispatchers.IO){
+                                    getNextTag()
+                                }
+                                withContext(Dispatchers.IO){
+                                    name = getNextText()
                                 }
                             }
-                            "description" -> {
-                                url = parser.nextText().substringAfter("src=").substringBefore("  width")
-                            }
-                            "coordinates" -> {
-                                coordinates = parser.nextText()
-                                list.add(Camera(name, url, coordinates, false))
+                        }
+                        "description" -> {
+                            withContext(Dispatchers.IO){
+                                url = getNextText().substringAfter("src=").substringBefore("  width")
                             }
                         }
+                        "coordinates" -> {
+                            withContext(Dispatchers.IO){
+                                coordinates = getNextText()
+                            }
+                            list.add(Camera(name, url, coordinates, false))
+                        }
                     }
-                    typeEvent = parser.next()
-                }while(typeEvent != XmlPullParser.END_DOCUMENT)
-            }catch (e: IOException){
-                e.printStackTrace()
-            }catch (e: XmlPullParserException){
-                e.printStackTrace()
-            }
+                }
+                withContext(Dispatchers.IO){
+                    typeEvent = getNext()
+                }
+            }while(typeEvent != XmlPullParser.END_DOCUMENT)
+        }catch (e: IOException){
+            e.printStackTrace()
+        }catch (e: XmlPullParserException){
+            e.printStackTrace()
         }
-        _cameras.value = list
     }
 
     fun displayCheck(camera: Camera){
