@@ -1,10 +1,7 @@
 package com.miguelzaragoza.upm.dam.ui.common
 
-import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.RadioButton
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -13,23 +10,15 @@ import com.miguelzaragoza.upm.dam.model.Camera
 
 class CamerasAdapter(private val onClickListener: OnClickListener): ListAdapter<Camera, CamerasViewHolder>(CamerasDiffCallback()) {
 
-    private var lastCamera: Camera? = null
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CamerasViewHolder {
         return CamerasViewHolder.from(parent)
     }
 
     override fun onBindViewHolder(holder: CamerasViewHolder, position: Int) {
         val camera = getItem(position)
-        if(camera.status) lastCamera = camera
         holder.itemView.setOnClickListener {
-            if(lastCamera != camera){
-                camera.status = true
-                lastCamera?.status = false
-                lastCamera = camera
-                onClickListener.onClick(camera)
-                notifyDataSetChanged()
-            }
+            onClickListener.onClick(camera)
+            notifyDataSetChanged()
         }
         holder.bind(camera)
     }
@@ -51,11 +40,11 @@ class CamerasViewHolder private constructor(val binding: ListViewItemBinding): R
 
 class CamerasDiffCallback: DiffUtil.ItemCallback<Camera>(){
     override fun areItemsTheSame(oldItem: Camera, newItem: Camera): Boolean {
-        return oldItem.name == newItem.name
+        return oldItem.status != newItem.status
     }
 
     override fun areContentsTheSame(oldItem: Camera, newItem: Camera): Boolean {
-        return oldItem == newItem
+        return oldItem != newItem
     }
 }
 

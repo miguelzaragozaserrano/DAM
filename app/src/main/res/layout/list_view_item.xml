@@ -12,6 +12,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
         <TextView
             android:id="@+id/camera_name"
             android:layout_width="wrap_content"
@@ -32,8 +33,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:clickable="false"
-            android:checked="@{camera.status}"/>
+            android:checked="@{camera.status}"
+            android:clickable="false" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

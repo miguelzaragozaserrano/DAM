@@ -11,6 +11,7 @@ import com.miguelzaragoza.upm.dam.databinding.FragmentListBinding
 import com.miguelzaragoza.upm.dam.ui.common.CamerasAdapter
 import com.miguelzaragoza.upm.dam.ui.common.OnClickListener
 import com.miguelzaragoza.upm.dam.viewmodel.CamerasViewModelFactory
+import kotlinx.coroutines.launch
 
 class ListFragment : Fragment() {
 
@@ -27,8 +28,8 @@ class ListFragment : Fragment() {
         binding.lifecycleOwner = requireActivity()
         binding.viewModel = camerasViewModel
 
-        binding.camerasList.adapter = CamerasAdapter(OnClickListener {
-            camerasViewModel.displayImageCamera(it)
+        binding.camerasList.adapter = CamerasAdapter(OnClickListener {camera ->
+            camerasViewModel.displayCheck(camera)
         })
 
         return binding.root
