@@ -1,8 +1,6 @@
 package com.miguelzaragoza.upm.dam.binding
 
-import android.util.Log
 import android.widget.ImageView
-import android.widget.RadioButton
 import androidx.core.net.toUri
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView

@@ -5,13 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.miguelzaragoza.upm.dam.databinding.FragmentListBinding
 import com.miguelzaragoza.upm.dam.ui.common.CamerasAdapter
 import com.miguelzaragoza.upm.dam.ui.common.OnClickListener
 import com.miguelzaragoza.upm.dam.viewmodel.CamerasViewModelFactory
-import kotlinx.coroutines.launch
 
 class ListFragment : Fragment() {
 
