@@ -5,6 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.miguelzaragoza.upm.dam.ui.cameras.CamerasViewModel
 
+/**
+ * ViewModelFactory que permite crear un ViewModel al que pasarle parámetros por constructor
+ */
 class CamerasViewModelFactory(
     private val application: Application
 ) : ViewModelProvider.Factory {
