@@ -10,12 +10,9 @@ import com.miguelzaragoza.upm.dam.R
 import com.miguelzaragoza.upm.dam.model.Camera
 import com.miguelzaragoza.upm.dam.ui.common.CamerasAdapter
 
-/**
- * Clase Binding Adapters.
- * Permite personalizar la lógica con la que un método set ejecuta un atributo del XML.
- */
-
-
+/***************************** CLASE BINDING ADAPTERS *****************************
+ Permite personalizar la lógica con la que un método set ejecuta un atributo del XML
+ **********************************************************************************/
 
 /**
  * Función que asigna la imagen de la cámara que se clickea al ImageView.
