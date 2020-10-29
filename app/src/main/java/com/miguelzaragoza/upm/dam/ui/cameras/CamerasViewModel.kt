@@ -60,6 +60,11 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
     val cameras: LiveData<List<Camera>>
         get() = _cameras
 
+    /* Variable para controlar la navegación al mapa */
+    private val _navigateToSelectedCamera = MutableLiveData<Boolean>()
+    val navigateToSelectedCamera: LiveData<Boolean>
+        get() = _navigateToSelectedCamera
+
     /********************************* BLOQUE INICIAL *********************************/
     init {
         /* Utilizamos un hilo secundario para realizar el setup */
@@ -196,5 +201,14 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
     private fun getNextTag(): Int = parser.nextTag()
     /* Función que nos devuelve el siguiente texto */
     private fun getNextText(): String = parser.nextText()
+
+    fun showMap(){
+        _navigateToSelectedCamera.value = true
+        showMapComplete()
+    }
+
+    fun showMapComplete(){
+        _navigateToSelectedCamera.value = null
+    }
 
 }

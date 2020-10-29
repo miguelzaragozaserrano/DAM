@@ -3,18 +3,18 @@ package com.miguelzaragoza.upm.dam.viewmodel
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.miguelzaragoza.upm.dam.ui.cameras.CamerasViewModel
+import com.miguelzaragoza.upm.dam.ui.map.MapViewModel
 
 /**
- * ViewModelFactory que permite crear un CamerasViewModel al que pasarle parámetros por constructor
+ * ViewModelFactory que permite crear un MapViewModel al que pasarle parámetros por constructor
  */
-class CamerasViewModelFactory(
+class MapViewModelFactory(
     private val application: Application
 ) : ViewModelProvider.Factory {
     @Suppress("unchecked_cast")
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(CamerasViewModel::class.java)) {
-            return CamerasViewModel(application) as T
+        if (modelClass.isAssignableFrom(MapViewModel::class.java)) {
+            return MapViewModel(application) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
