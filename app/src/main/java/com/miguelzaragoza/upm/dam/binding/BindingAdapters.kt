@@ -9,8 +9,23 @@ import com.bumptech.glide.request.RequestOptions
 import com.miguelzaragoza.upm.dam.R
 import com.miguelzaragoza.upm.dam.model.Camera
 import com.miguelzaragoza.upm.dam.ui.common.CamerasAdapter
-import kotlinx.coroutines.*
 
+/**
+ * Clase Binding Adapters.
+ * Permite personalizar la lógica con la que un método set ejecuta un atributo del XML.
+ */
+
+
+
+/**
+ * Función que asigna la imagen de la cámara que se clickea al ImageView.
+ * Para ello, le pasamos el View correspondiente a la función y el posible enlace de la imagen.
+ * 1.- Comprobamos si el String no está vacío con el metodo "let".
+ * 2.- Convertimos el String en un Uri.
+ * 3.- Usamos la librería Glide para obtener la imagen de internet y cargarla en el ImageView.
+ *     Durante la carga de la imagen añadimos una animación de carga y, en caso de que no se consiga
+ *     cargar, mostramos una imagen como si el fichero estuviera roto.
+ * */
 @BindingAdapter("imageUrl")
 fun bindImage(imgView: ImageView, imgUrl: String?){
     imgUrl?.let{
@@ -24,6 +39,12 @@ fun bindImage(imgView: ImageView, imgUrl: String?){
     }
 }
 
+/**
+ * Función que asigna la lista de cámaras al RecyclerView.
+ * Para ello, le pasamos el View correspondiente a la función y la posible lista de objetos Cámara.
+ * 1.- Asignamos el adaptador CamerasAdapter a una variable.
+ * 2.- Le pasamos la lista que queremos que muestre.
+ */
 @BindingAdapter("listCameras")
 fun bindRecyclerView(recyclerView: RecyclerView, cameras: List<Camera>?){
     val adapter = recyclerView.adapter as CamerasAdapter
