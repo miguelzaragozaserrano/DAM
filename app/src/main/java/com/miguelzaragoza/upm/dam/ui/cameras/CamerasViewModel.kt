@@ -110,6 +110,7 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
                 camera.status = true
                 _camera.value = camera
             }
+            adapter.notifyDataSetChanged()
         }
     }
 

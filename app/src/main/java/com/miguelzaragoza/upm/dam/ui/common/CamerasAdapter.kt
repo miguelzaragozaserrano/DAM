@@ -18,7 +18,6 @@ class CamerasAdapter(private val onClickListener: OnClickListener): ListAdapter<
         val camera = getItem(position)
         holder.itemView.setOnClickListener {
             onClickListener.onClick(camera)
-            notifyDataSetChanged()
         }
         holder.bind(camera)
     }
