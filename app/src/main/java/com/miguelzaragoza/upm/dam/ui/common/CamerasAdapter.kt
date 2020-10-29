@@ -23,7 +23,7 @@ class CamerasAdapter(private val onClickListener: OnClickListener): ListAdapter<
     }
 }
 
-class CamerasViewHolder private constructor(val binding: ListViewItemBinding): RecyclerView.ViewHolder(binding.root){
+class CamerasViewHolder private constructor(private val binding: ListViewItemBinding): RecyclerView.ViewHolder(binding.root){
     fun bind(camera: Camera) {
         binding.camera = camera
         binding.executePendingBindings()
