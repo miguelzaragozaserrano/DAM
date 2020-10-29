@@ -6,6 +6,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.miguelzaragoza.upm.dam.model.Camera
+import com.miguelzaragoza.upm.dam.ui.common.CamerasAdapter
+import com.miguelzaragoza.upm.dam.ui.common.OnClickListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -19,8 +21,11 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
 
     private val context = application.applicationContext
 
-    private val coroutineMain = CoroutineScope(Dispatchers.Main)
-    private val coroutineIO = CoroutineScope(Dispatchers.IO)
+    private val coroutineScope = CoroutineScope(Dispatchers.Main)
+
+    var adapter = CamerasAdapter(OnClickListener { camera ->
+        displayCheck(camera)
+    })
 
     private var list = ArrayList<Camera>()
     private lateinit var inputStream: InputStream
@@ -42,11 +47,17 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
         get() = _cameras
 
     init {
-        coroutineIO.launch {
+        coroutineScope.launch {
+            setupCameras()
+        }
+    }
+
+    private suspend fun setupCameras(){
+        withContext(Dispatchers.IO){
             openFile()
             getCameras()
         }
-        coroutineMain.launch {
+        withContext(Dispatchers.Main){
             _lastCamera.value = null
             _cameras.value = list
         }
@@ -71,28 +82,28 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
                     when(parser.name){
                         "Data" -> {
                             if(parser.getAttributeValue(0) == "Nombre"){
-                                withContext(Dispatchers.IO){
+                                withContext(Dispatchers.Default){
                                     getNextTag()
                                 }
-                                withContext(Dispatchers.IO){
+                                withContext(Dispatchers.Default){
                                     name = getNextText()
                                 }
                             }
                         }
                         "description" -> {
-                            withContext(Dispatchers.IO){
+                            withContext(Dispatchers.Default){
                                 url = getNextText().substringAfter("src=").substringBefore("  width")
                             }
                         }
                         "coordinates" -> {
-                            withContext(Dispatchers.IO){
+                            withContext(Dispatchers.Default){
                                 coordinates = getNextText()
                             }
                             list.add(Camera(name, url, coordinates, false))
                         }
                     }
                 }
-                withContext(Dispatchers.IO){
+                withContext(Dispatchers.Default){
                     typeEvent = getNext()
                 }
             }while(typeEvent != XmlPullParser.END_DOCUMENT)
@@ -104,7 +115,7 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
     }
 
     fun displayCheck(camera: Camera){
-        coroutineMain.launch {
+        coroutineScope.launch {
             if(lastCamera.value == null) _lastCamera.value = camera
             else{
                 _lastCamera.value = _camera.value

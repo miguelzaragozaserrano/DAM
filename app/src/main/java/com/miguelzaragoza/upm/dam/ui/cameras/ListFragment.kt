@@ -1,6 +1,8 @@
 package com.miguelzaragoza.upm.dam.ui.cameras
 
+import android.content.res.Configuration
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,9 +28,7 @@ class ListFragment : Fragment() {
         binding.lifecycleOwner = requireActivity()
         binding.viewModel = camerasViewModel
 
-        binding.camerasList.adapter = CamerasAdapter(OnClickListener {camera ->
-            camerasViewModel.displayCheck(camera)
-        })
+        binding.camerasList.adapter = camerasViewModel.adapter
 
         return binding.root
     }

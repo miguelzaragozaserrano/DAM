@@ -42,7 +42,6 @@ class CamerasDiffCallback: DiffUtil.ItemCallback<Camera>(){
     override fun areItemsTheSame(oldItem: Camera, newItem: Camera): Boolean {
         return oldItem.status != newItem.status
     }
-
     override fun areContentsTheSame(oldItem: Camera, newItem: Camera): Boolean {
         return oldItem != newItem
     }

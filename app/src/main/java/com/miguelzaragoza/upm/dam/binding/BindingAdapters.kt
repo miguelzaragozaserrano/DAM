@@ -9,6 +9,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.miguelzaragoza.upm.dam.R
 import com.miguelzaragoza.upm.dam.model.Camera
 import com.miguelzaragoza.upm.dam.ui.common.CamerasAdapter
+import kotlinx.coroutines.*
 
 @BindingAdapter("imageUrl")
 fun bindImage(imgView: ImageView, imgUrl: String?){
