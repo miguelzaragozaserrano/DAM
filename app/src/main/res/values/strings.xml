@@ -1,6 +1,10 @@
 <resources>
     <string name="app_name">Cámaras de tráfico de Madrid</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_cameras">CamerasActivity</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="title_satellite">Satélite</string>
+    <string name="title_normal">Normal</string>
+    <string name="title_hybrid">Híbrido</string>
+    <string name="title_activity_a">Map</string>
 </resources>
