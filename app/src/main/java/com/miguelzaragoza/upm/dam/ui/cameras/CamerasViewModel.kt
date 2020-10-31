@@ -6,6 +6,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.miguelzaragoza.upm.dam.model.Camera
+import com.miguelzaragoza.upm.dam.model.Cameras
 import com.miguelzaragoza.upm.dam.ui.common.CamerasAdapter
 import com.miguelzaragoza.upm.dam.ui.common.OnClickListener
 import kotlinx.coroutines.CoroutineScope
@@ -19,7 +20,8 @@ import java.io.InputStream
 
 /**
  * ViewModel que realizará las funciones lógicas y almacenará los datos del
- * ImageFragment y ListFragment.
+ * CamerasFragment.
+ * @param application: objeto Application que nos permitirá obtener el contexto de la aplicación
  */
 class CamerasViewModel(application: Application): AndroidViewModel(application) {
 
@@ -29,13 +31,14 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
     private val context = application.applicationContext
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
-    /* Variable pública que crea el objeto CameraAdaper*/
+    /* Variable pública que crea el objeto CameraAdaper
+    *  y guarda el valor de la cámara seleccioanda */
     var adapter = CamerasAdapter(OnClickListener { camera ->
         selectedCamera(camera)
     })
 
     /* Variables privadas para la lectura del fichero KML */
-    private var list = ArrayList<Camera>()
+    var list = Cameras()
     private lateinit var inputStream: InputStream
     private lateinit var coordinates: String
     private lateinit var url: String
@@ -74,7 +77,9 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
     }
 
     /*************************** FUNCIONES PRIVADAS BÁSICAS ***************************/
-    /* Función que ejecuta a su vez dos hilos secundarios */
+    /**
+     * Función suspendida que ejecuta a su vez dos hilos secundarios.
+     */
     private suspend fun initialSetup(){
         /* Hilo que abrirá y recorrerá el KML */
         withContext(Dispatchers.IO){
@@ -90,14 +95,21 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
     }
 
     /*************************** FUNCIONES PRIVADAS ADAPTER ***************************/
-    /* Función que ejecuta un hilo secundario */
+    /**
+     * Función que ejecuta un hilo secundario.
+     * @param camera: cámara seleccionada
+     */
     private fun selectedCamera(camera: Camera){
         coroutineScope.launch {
             displayCheck(camera)
         }
     }
 
-    /* Función que actualiza el status de la cámara para activar o desactivar el RadioButton */
+    /**
+     * Función suspendida que actualiza el status
+     * de la cámara para activar o desactivar el RadioButton.
+     * @param camera: cámara a la que queremos activar el tick
+     */
     private suspend fun displayCheck(camera: Camera){
         withContext(Dispatchers.Main){
             /* Si no existe una última cámara seleccionada es porque
@@ -120,12 +132,16 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
     }
 
     /***************************** FUNCIONES PRIVADAS KML *****************************/
-    /* Función que se encarga de abrir el fichero KML */
+    /**
+     * Función que se encarga de abrir el fichero KML.
+     */
     private fun openFile() {
         inputStream = context.assets.open("CCTV.kml")
     }
 
-    /* Función que recorre el fichero KML para obtener los datos que necesitamos */
+    /**
+     * Función suspendida que recorre el fichero KML para obtener los datos que necesitamos.
+     */
     private suspend fun getCameras(){
         try{
             parser = Xml.newPullParser()
@@ -168,7 +184,7 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
                             /* Ejecutamos un hio independiente del secundario para obtener
                             *  el siguiente texto y guardarlo en la variable coordinates */
                             withContext(Dispatchers.IO){
-                                coordinates = getNextText()
+                                coordinates = getNextText().substringBefore(",10")
                             }
                             /* Como las coordenadas son el último valor que se obtiene
                             *  de cada cámara, creamos un objeto Camera y lo añadimos a la lista
@@ -195,18 +211,32 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
     /************************ FUNCIONES PRIVADAS DE getCameras() ************************
      *** Se ejecutarán en un hilo diferente para evitar bloqueos del hilo secundario ***
      ***********************************************************************************/
-    /* Función que nos devuelve el siguiente tipo de evento */
+    /**
+     * Función que nos devuelve el siguiente tipo de evento.
+     */
     private fun getNext(): Int = parser.next()
-    /* Función que nos devuelve la siguiente etiqueta */
+    /**
+     * Función que nos devuelve la siguiente etiqueta.
+     */
     private fun getNextTag(): Int = parser.nextTag()
-    /* Función que nos devuelve el siguiente texto */
+    /**
+     * Función que nos devuelve el siguiente texto.
+     */
     private fun getNextText(): String = parser.nextText()
 
+
+    /***************************** FUNCIONES PRIVADAS NAV *****************************/
+    /**
+     * Función que se llama desde el XML para activar el proceso de navegación al mapa.
+     */
     fun showMap(){
         _navigateToSelectedCamera.value = true
         showMapComplete()
     }
 
+    /**
+     * Función que finaliza el proceso de navegación.
+     */
     fun showMapComplete(){
         _navigateToSelectedCamera.value = null
     }
