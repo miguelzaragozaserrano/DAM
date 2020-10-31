@@ -10,12 +10,17 @@
         android:label="cameras_fragment"
         tools:layout="@layout/fragment_cameras">
         <action
-            android:id="@+id/action_cameras_fragment_to_map_fragment"
+            android:id="@+id/action_cameras_fragment_to_maps_fragment"
             app:destination="@id/map_fragment" />
     </fragment>
     <fragment
         android:id="@+id/map_fragment"
         android:name="com.miguelzaragoza.upm.dam.ui.map.MapFragment"
         android:label="map_fragment"
-        tools:layout="@layout/fragment_map"/>
+        tools:layout="@layout/fragment_map">
+        <argument
+            android:name="cameras"
+            app:argType="com.miguelzaragoza.upm.dam.model.Cameras"
+            />
+    </fragment>
 </navigation>
