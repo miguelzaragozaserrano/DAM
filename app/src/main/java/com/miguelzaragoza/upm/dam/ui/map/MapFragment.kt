@@ -1,16 +1,18 @@
 package com.miguelzaragoza.upm.dam.ui.map
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.gms.maps.GoogleMap
 import com.miguelzaragoza.upm.dam.databinding.FragmentMapBinding
 import com.miguelzaragoza.upm.dam.viewmodel.MapViewModelFactory
 
 /**
- * Fragment que muestra el mapa de la cámara seleccionada
+ * Fragment que muestra la segunda pantalla
+ * donde aparece el mapa de Google
  */
 class MapFragment : Fragment() {
 
@@ -30,11 +32,29 @@ class MapFragment : Fragment() {
         val viewModelFactory = MapViewModelFactory(application)
 
         /* Declaramos nuestra variable del ViewModel para poder interactuar con ella */
-        val mapViewModel = ViewModelProvider(requireActivity(), viewModelFactory).get(MapViewModel::class.java)
+        val mapViewModel = ViewModelProvider(this, viewModelFactory).get(MapViewModel::class.java)
 
-        /* Asignamos al lifecycleOwner el Activity actual para detectar
+        val cameras = MapFragmentArgs.fromBundle(arguments!!).cameras
+
+        /* Asignamos al lifecycleOwner el fragment actual para detectar
         *  los cambios de los objetos LiveData */
-        binding.lifecycleOwner = requireActivity()
+        binding.lifecycleOwner = this
+
+        /* Creamos e inicializamos el MapView */
+        binding.mapView.onCreate(savedInstanceState)
+        binding.mapView.onResume()
+        binding.mapView.getMapAsync {
+            mapViewModel.initialSetup(it, cameras)
+        }
+
+        /* Dependiendo del chip seleccionado, se mostrará un modo u otro */
+        binding.chipGroup.setOnCheckedChangeListener { _, checkedId ->
+            when(checkedId){
+                binding.hybridChip.id -> mapViewModel.changeTypeMap(GoogleMap.MAP_TYPE_HYBRID)
+                binding.satelliteChip.id -> mapViewModel.changeTypeMap(GoogleMap.MAP_TYPE_SATELLITE)
+                binding.normalChip.id -> mapViewModel.changeTypeMap(GoogleMap.MAP_TYPE_NORMAL)
+            }
+        }
 
         /* Devolvemos la vista más externa del layout asociado con el binding */
         return binding.root
