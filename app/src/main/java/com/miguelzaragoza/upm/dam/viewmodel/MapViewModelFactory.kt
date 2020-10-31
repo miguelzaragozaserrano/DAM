@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.miguelzaragoza.upm.dam.ui.map.MapViewModel
 
 /**
- * ViewModelFactory que permite crear un MapViewModel al que pasarle parámetros por constructor
+ * ViewModelFactory que permite crear un CamerasViewModel al que pasarle parámetros por constructor
  */
 class MapViewModelFactory(
     private val application: Application
