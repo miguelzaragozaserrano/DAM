@@ -22,6 +22,8 @@ import com.miguelzaragoza.upm.dam.ui.common.CamerasAdapter
  * 3.- Usamos la librería Glide para obtener la imagen de internet y cargarla en el ImageView.
  *     Durante la carga de la imagen añadimos una animación de carga y, en caso de que no se consiga
  *     cargar, mostramos una imagen como si el fichero estuviera roto.
+ * @param imgView: vista del ImageView
+ * @param imgUrl: enlace con la foto de la cámara que queremos mostrar
  * */
 @BindingAdapter("imageUrl")
 fun bindImage(imgView: ImageView, imgUrl: String?){
@@ -41,6 +43,8 @@ fun bindImage(imgView: ImageView, imgUrl: String?){
  * Para ello, le pasamos el View correspondiente a la función y la posible lista de objetos Cámara.
  * 1.- Asignamos el adaptador CamerasAdapter a una variable.
  * 2.- Le pasamos la lista que queremos que muestre.
+ * @param recyclerView: vista del RecyclerView
+ * @param cameras: lista de cámaras
  */
 @BindingAdapter("listCameras")
 fun bindRecyclerView(recyclerView: RecyclerView, cameras: List<Camera>?){
