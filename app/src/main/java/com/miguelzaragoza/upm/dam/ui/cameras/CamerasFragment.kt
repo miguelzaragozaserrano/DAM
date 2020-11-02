@@ -1,12 +1,11 @@
 package com.miguelzaragoza.upm.dam.ui.cameras
 
 import android.os.Bundle
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import com.miguelzaragoza.upm.dam.R
 import com.miguelzaragoza.upm.dam.databinding.FragmentCamerasBinding
 import com.miguelzaragoza.upm.dam.viewmodel.CamerasViewModelFactory
 
@@ -16,10 +15,18 @@ import com.miguelzaragoza.upm.dam.viewmodel.CamerasViewModelFactory
  */
 class CamerasFragment : Fragment() {
 
+    /******************************** VARIABLES BÁSICAS ********************************/
+    /* Variable que declara el ViewModel para poder interactuar con él */
+    private lateinit var camerasViewModel: CamerasViewModel
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
+        /* Señalamos que vamos a añadir un menú de opciones */
+        setHasOptionsMenu(true)
+
         /* Usamos la librería DataBinding para inflar el Fragmment con el layout correspondiente */
         val binding = FragmentCamerasBinding.inflate(inflater)
 
@@ -32,7 +39,7 @@ class CamerasFragment : Fragment() {
         val viewModelFactory = CamerasViewModelFactory(application)
 
         /* Declaramos nuestra variable del ViewModel para poder interactuar con ella */
-        val camerasViewModel = ViewModelProvider(this, viewModelFactory).get(CamerasViewModel::class.java)
+        camerasViewModel = ViewModelProvider(this, viewModelFactory).get(CamerasViewModel::class.java)
 
         /* Asignamos al lifecycleOwner el fragment actual para detectar
         *  los cambios de los objetos LiveData */
@@ -49,11 +56,31 @@ class CamerasFragment : Fragment() {
         /* Observamos la variable navigateToSelectedCamera. Si toma un valor distinto de null,
         *  es debido a que se ha pulsado una imagen y por tanto navegamos a un segundo fragment */
         camerasViewModel.navigateToSelectedCamera.observe(viewLifecycleOwner, {
-            if(it != null && camerasViewModel.camera.value != null) findNavController().navigate(CamerasFragmentDirections.actionCamerasFragmentToMapsFragment(camerasViewModel.list))
+            if(it != null && camerasViewModel.camera.value != null){
+                findNavController().navigate(CamerasFragmentDirections.actionCamerasFragmentToMapsFragment(camerasViewModel.list))
+            }
         })
 
         /* Devolvemos la vista más externa del layout asociado con el binding */
         return binding.root
     }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        /* Inflamos el menú */
+        inflater.inflate(R.menu.menu, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        /* Analizamos la opción seleccionada */
+        when(item.itemId){
+            R.id.actions_asc -> camerasViewModel.getAscendingList()
+            R.id.action_desc -> camerasViewModel.getDescendingList()
+            else -> return false
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+
 
 }
