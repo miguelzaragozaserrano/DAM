@@ -1,16 +1,15 @@
-package com.miguelzaragoza.upm.dam.ui.cameras
+package com.miguelzaragoza.upm.dam.modules.cameras
 
 import android.app.Application
-import android.util.Log
 import android.util.Xml
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.android.gms.maps.model.LatLng
 import com.miguelzaragoza.upm.dam.model.Camera
 import com.miguelzaragoza.upm.dam.model.Cameras
-import com.miguelzaragoza.upm.dam.ui.common.CamerasAdapter
-import com.miguelzaragoza.upm.dam.ui.common.OnClickListener
+import com.miguelzaragoza.upm.dam.modules.base.BaseViewModel
+import com.miguelzaragoza.upm.dam.modules.common.CamerasAdapter
+import com.miguelzaragoza.upm.dam.modules.common.OnClickListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -25,7 +24,7 @@ import java.io.InputStream
  * CamerasFragment.
  * @param application: objeto Application que nos permitirá obtener el contexto de la aplicación
  */
-class CamerasViewModel(application: Application): AndroidViewModel(application) {
+class CamerasViewModel(application: Application): BaseViewModel(application) {
 
     /******************************** VARIABLES BÁSICAS ********************************/
     /* Variables privadas para definir el contexto cuando sea necesario,
@@ -39,8 +38,18 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
         selectedCamera(camera)
     })
 
+    /* Variables para guardar la lista que se comparte en el mapa
+    *  y la lista del primer fragmento */
+    var sharedList = Cameras()
+    private var list = Cameras()
+
+    /* Variable que nos ayuda con el número de cámaras que queremos mostrar en el mapa */
+    private var singleMode: Boolean = false
+
+    /* Variable de la última cámara seleccionada */
+    private var lastCamera: Camera? = null
+
     /* Variables privadas para la lectura del fichero KML */
-    var list = Cameras()
     private lateinit var inputStream: InputStream
     private lateinit var coordinates: String
     private lateinit var url: String
@@ -52,15 +61,11 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
     /***************************** VARIABLES ENCAPSULADAS *****************************
      Nos permiten modificar su valor desde el ViewModel pero no desde una clase externa
      **********************************************************************************/
+
     /* Variable de la cámara actual */
     private val _camera = MutableLiveData<Camera>()
     val camera: LiveData<Camera>
         get() = _camera
-
-    /* Variable de la última cámara seleccionada */
-    private val _lastCamera = MutableLiveData<Camera>()
-    private val lastCamera: LiveData<Camera>
-        get() = _lastCamera
 
     /* Variable de la lista de cámaras */
     private val _cameras = MutableLiveData<List<Camera>>()
@@ -90,12 +95,9 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
             openFile()
             getCameras()
         }
-        /* Hilo de que inicializa las variables de la última cámara seleccionada
+        /* Inicializamos las variables de la última cámara seleccionada
         *  y de la lista de cámaras */
-        withContext(Dispatchers.Main){
-            _lastCamera.value = null
-            _cameras.value = list
-        }
+        _cameras.value = list
     }
 
     /*************************** FUNCIONES PRIVADAS ADAPTER ***************************/
@@ -117,13 +119,13 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
     private suspend fun displayCheck(camera: Camera){
         withContext(Dispatchers.Main){
             /* Si no existe una última cámara seleccionada es porque
-            *  es la primera vez que hacemos click en una asi que le asignamos la clickeada */
-            if(lastCamera.value == null) _lastCamera.value = camera
+            *  es la primera vez que hacemos click en una, asi que le asignamos la clickeada */
+            if(lastCamera == null) lastCamera = camera
             /* Por el contrario, si ya existe una, le asignamos la actual y
             *  marcamos que ya no está clickeada */
             else{
-                _lastCamera.value = _camera.value
-                _lastCamera.value?.status = false
+                lastCamera = _camera.value
+                lastCamera?.status = false
             }
             /* Si el estado de la cámara clickeada es falso, lo marcamos como clickeada
             *  y actualizamos la cámara actual */
@@ -196,6 +198,7 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
                             *  de cada cámara, creamos un objeto Camera y lo añadimos a la lista
                             *  de cámaras */
                             list.add(Camera(name, url, LatLng(latitude, longitude), false))
+                            sharedList.add(Camera(name, url, LatLng(latitude, longitude), false))
                         }
                     }
                 }
@@ -247,9 +250,9 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
         _navigateToSelectedCamera.value = null
     }
 
-    /***************************** FUNCIONES PÚBLICAS MENÚ *****************************/
+    /***************************** FUNCIONES PARA EL MENÚ *****************************/
     /**
-     * Función que ordena la lista de cámaras alfabéticamente en orden ascendente
+     * Función que ordena la lista de cámaras alfabéticamente en orden ascendente.
      */
     fun getAscendingList(){
         _cameras.value = cameras.value?.sortedBy {camera ->
@@ -258,12 +261,49 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
     }
 
     /**
-     * Función que ordena la lista de cámaras alfabéticamente en orden descendente
+     * Función que ordena la lista de cámaras alfabéticamente en orden descendente.
      */
     fun getDescendingList(){
         _cameras.value = cameras.value?.sortedByDescending {camera ->
             camera.name
         }
+    }
+
+    /**
+     * Función que asigna la sharedList con el valor de la cámara seleccionada.
+     */
+    private fun getSingleCamera(){
+        sharedList.clear()
+        camera.value?.let { camera ->
+            sharedList.add(camera)
+        }
+    }
+
+    /**
+     * Función que asigna la sharedList con el valor de todas las cámaras.
+     */
+    private fun getMultipleCameras(){
+        sharedList.clear()
+        for(camera in cameras.value!!){
+            sharedList.add(camera)
+        }
+    }
+
+    /**
+     * Función, que dependiendo de las cámaras que quieres mostrar, llama a una función u otra.
+     */
+    fun setSharedList(){
+        if(singleMode) getSingleCamera()
+        else getMultipleCameras()
+    }
+
+    /**
+     * Función que actualiza el valor del singleMode, para saber si queremos mostrar una
+     * cámara o todas.
+     * @param value: variable que determina si el valor del singleMode es true o false
+     */
+    fun setMode(value: Boolean){
+        singleMode = value
     }
 
 }
