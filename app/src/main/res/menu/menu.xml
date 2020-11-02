@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/actions_asc"
-        android:title="@string/actions_asc" />
+        android:id="@+id/action_asc"
+        android:title="@string/action_asc" />
     <item
         android:id="@+id/action_desc"
         android:title="@string/action_desc" />
+    <group android:checkableBehavior="single">
+        <item android:id="@+id/single_camera"
+            android:title="@string/single_camera"/>
+        <item android:id="@+id/multiple_cameras"
+            android:title="@string/multiple_cameras"
+            android:checked="true"/>
+    </group>
 </menu>
