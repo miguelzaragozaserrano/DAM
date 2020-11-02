@@ -1,4 +1,4 @@
-package com.miguelzaragoza.upm.dam.ui.map
+package com.miguelzaragoza.upm.dam.modules.map
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
@@ -11,6 +11,7 @@ import com.miguelzaragoza.upm.dam.model.Cameras
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * ViewModel que realizará las funciones lógicas y almacenará los datos del
@@ -23,7 +24,6 @@ class MapViewModel (application: Application): AndroidViewModel(application) {
     /* Variables privadas para definir el contexto cuando sea necesario,
     *  y para asignarle los atributos y valores necesarios al MapView */
     private val context = application.applicationContext
-    private val coroutineScope = CoroutineScope(Dispatchers.Main)
     private lateinit var googleMap: GoogleMap
 
     /*************************** FUNCIONES PRIVADAS BÁSICAS ***************************/
@@ -32,18 +32,18 @@ class MapViewModel (application: Application): AndroidViewModel(application) {
      * @param map: mapa al que le asignamos los valores iniciales
      */
     fun initialSetup(map: GoogleMap, cameras: Cameras){
-        coroutineScope.launch {
-            try{
-                MapsInitializer.initialize(context)
-            }catch (e: Exception){
-                e.printStackTrace()
-            }
-            googleMap = map
-            googleMap.mapType = GoogleMap.MAP_TYPE_SATELLITE
-            addCameras(cameras)
-            val cameraPosition = CameraPosition.Builder().target(cameras[0].coordinates).zoom(12F).build()
-            googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
+        try{
+            MapsInitializer.initialize(context)
+        }catch (e: Exception){
+            e.printStackTrace()
         }
+        googleMap = map
+        googleMap.mapType = GoogleMap.MAP_TYPE_SATELLITE
+
+        val cameraPosition = CameraPosition.Builder().target(cameras[0].coordinates).zoom(12F).build()
+        googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
+
+        addCameras(cameras)
     }
 
     /**
@@ -61,9 +61,9 @@ class MapViewModel (application: Application): AndroidViewModel(application) {
     private fun addCameras(cameras: Cameras){
         cameras.map {camera ->
             googleMap.addMarker(
-                MarkerOptions()
-                    .position(camera.coordinates)
-                    .title(camera.name)
+                    MarkerOptions()
+                            .position(camera.coordinates)
+                            .title(camera.name)
             )
         }
     }

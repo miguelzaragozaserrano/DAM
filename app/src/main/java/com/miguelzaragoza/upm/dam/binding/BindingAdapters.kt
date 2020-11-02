@@ -8,7 +8,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.miguelzaragoza.upm.dam.R
 import com.miguelzaragoza.upm.dam.model.Camera
-import com.miguelzaragoza.upm.dam.ui.common.CamerasAdapter
+import com.miguelzaragoza.upm.dam.modules.common.CamerasAdapter
 
 /***************************** CLASE BINDING ADAPTERS *****************************
  Permite personalizar la lógica con la que un método set ejecuta un atributo del XML

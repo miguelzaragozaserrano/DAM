@@ -1,4 +1,4 @@
-package com.miguelzaragoza.upm.dam.ui.common
+package com.miguelzaragoza.upm.dam.modules.common
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -66,6 +66,7 @@ class CamerasDiffCallback: DiffUtil.ItemCallback<Camera>(){
 /**
  * Interfaz para gestionar los clicks del RecyclerView.
  * Lo utilizaremos para guardar el valor de la cámara seleccionada.
+ * @param clickListener: de
  */
 class OnClickListener(val clickListener: (camera: Camera) -> Unit){
     fun onClick(camera: Camera) = clickListener(camera)

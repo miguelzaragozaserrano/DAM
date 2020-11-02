@@ -1,4 +1,4 @@
-package com.miguelzaragoza.upm.dam.ui.map
+package com.miguelzaragoza.upm.dam.modules.map
 
 import android.os.Bundle
 import android.view.LayoutInflater
