@@ -1,10 +1,12 @@
 package com.miguelzaragoza.upm.dam.ui.cameras
 
 import android.app.Application
+import android.util.Log
 import android.util.Xml
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.google.android.gms.maps.model.LatLng
 import com.miguelzaragoza.upm.dam.model.Camera
 import com.miguelzaragoza.upm.dam.model.Cameras
 import com.miguelzaragoza.upm.dam.ui.common.CamerasAdapter
@@ -44,6 +46,8 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
     private lateinit var url: String
     private lateinit var name: String
     private lateinit var parser: XmlPullParser
+    private var latitude: Double = 0.0
+    private var longitude: Double = 0.0
 
     /***************************** VARIABLES ENCAPSULADAS *****************************
      Nos permiten modificar su valor desde el ViewModel pero no desde una clase externa
@@ -185,11 +189,13 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
                             *  el siguiente texto y guardarlo en la variable coordinates */
                             withContext(Dispatchers.IO){
                                 coordinates = getNextText().substringBefore(",10")
+                                latitude = coordinates.substringAfter(",").toDouble()
+                                longitude = coordinates.substringBefore(",").toDouble()
                             }
                             /* Como las coordenadas son el último valor que se obtiene
                             *  de cada cámara, creamos un objeto Camera y lo añadimos a la lista
                             *  de cámaras */
-                            list.add(Camera(name, url, coordinates, false))
+                            list.add(Camera(name, url, LatLng(latitude, longitude), false))
                         }
                     }
                 }
@@ -237,8 +243,27 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
     /**
      * Función que finaliza el proceso de navegación.
      */
-    fun showMapComplete(){
+    private fun showMapComplete(){
         _navigateToSelectedCamera.value = null
+    }
+
+    /***************************** FUNCIONES PÚBLICAS MENÚ *****************************/
+    /**
+     * Función que ordena la lista de cámaras alfabéticamente en orden ascendente
+     */
+    fun getAscendingList(){
+        _cameras.value = cameras.value?.sortedBy {camera ->
+            camera.name
+        }
+    }
+
+    /**
+     * Función que ordena la lista de cámaras alfabéticamente en orden descendente
+     */
+    fun getDescendingList(){
+        _cameras.value = cameras.value?.sortedByDescending {camera ->
+            camera.name
+        }
     }
 
 }
