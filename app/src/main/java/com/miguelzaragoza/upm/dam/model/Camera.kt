@@ -1,28 +1,26 @@
 package com.miguelzaragoza.upm.dam.model
 
 import android.os.Parcelable
+import com.google.android.gms.maps.model.LatLng
 import kotlinx.android.parcel.Parcelize
 
 /**
  * Clase del objeto Camera.
- * Consta de:
- * 1.- Un nombre.
- * 2.- Una url para acceder a la imagen que captura.
- * 3.- Unas coordenadas de su ubicación.
- * 4.- Un estado que nos indica si es la cámara que
- *     está mostrándose actualmente (true) o no (false).
  * @param name: nombre de la cámara
  * @param url: enlace con el que se obtiene la captura de dicha cámara
  * @param coordinates: coordenadas de donde se ubica la cámara
- * @param status: valor que determina si tenemos la cámara seleccionada o no
+ * @param status: valor que determina si tenemos la cámara seleccionada (true) o no (false)
  */
-@Parcelize
 data class Camera(
     val name: String,
     val url: String,
-    val coordinates: String,
+    val coordinates: LatLng,
     var status: Boolean
-): Parcelable
+)
 
+/**
+ * Clase Parcelable para enviar la lista de cámaras que queremos mostrar en el mapa
+ * en función de lo solicitado en el primer Fragment.
+ */
 @Parcelize
 class Cameras: ArrayList<Camera>(), Parcelable
