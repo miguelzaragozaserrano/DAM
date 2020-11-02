@@ -1,13 +1,11 @@
 package com.miguelzaragoza.upm.dam.ui.map
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapsInitializer
 import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.miguelzaragoza.upm.dam.model.Cameras
 import kotlinx.coroutines.CoroutineScope
@@ -21,13 +19,14 @@ import kotlinx.coroutines.launch
  */
 class MapViewModel (application: Application): AndroidViewModel(application) {
 
-    /******************************** VARIABLES BÁSICAS ********************************/
+    /******************************* VARIABLES BÁSICAS ********************************/
     /* Variables privadas para definir el contexto cuando sea necesario,
     *  y para asignarle los atributos y valores necesarios al MapView */
     private val context = application.applicationContext
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
     private lateinit var googleMap: GoogleMap
 
+    /*************************** FUNCIONES PRIVADAS BÁSICAS ***************************/
     /**
      * Función que inicializa el MapView con los valores deseados.
      * @param map: mapa al que le asignamos los valores iniciales
@@ -42,22 +41,31 @@ class MapViewModel (application: Application): AndroidViewModel(application) {
             googleMap = map
             googleMap.mapType = GoogleMap.MAP_TYPE_SATELLITE
             addCameras(cameras)
-            googleMap.addMarker(MarkerOptions().position(LatLng(-34.0, 151.0)).title("Marker Title").snippet("Marker Description"))
-            val cameraPosition = CameraPosition.Builder().target(LatLng(-34.0, 151.0)).zoom(12F).build()
+            val cameraPosition = CameraPosition.Builder().target(cameras[0].coordinates).zoom(12F).build()
             googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
         }
     }
 
     /**
      * Función que cambia el tipo de Mapa.
-     * @param type: Int que contiene el tipo de mapa.
+     * @param type: variable que contiene el tipo de mapa
      */
     fun changeTypeMap(type: Int){
         googleMap.mapType = type
     }
 
+    /**
+     * Función que permite añadir los marcadores al mapa
+     * @param cameras: lista de cámaras que queremos añadir al mapa
+     */
     private fun addCameras(cameras: Cameras){
-        Log.d("HOLI", cameras[1].coordinates)
+        cameras.map {camera ->
+            googleMap.addMarker(
+                MarkerOptions()
+                    .position(camera.coordinates)
+                    .title(camera.name)
+            )
+        }
     }
 
 }
