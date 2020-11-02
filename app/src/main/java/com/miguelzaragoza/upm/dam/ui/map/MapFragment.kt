@@ -31,9 +31,10 @@ class MapFragment : Fragment() {
         *  tenemos que crear un ViewModelFactory */
         val viewModelFactory = MapViewModelFactory(application)
 
-        /* Declaramos nuestra variable del ViewModel para poder interactuar con ella */
+        /* Declaramos nuestra variable del ViewModel para poder interactuar con él */
         val mapViewModel = ViewModelProvider(this, viewModelFactory).get(MapViewModel::class.java)
 
+        /* Recogemos la lista de cámaras que se pasa entre fragmentos */
         val cameras = MapFragmentArgs.fromBundle(arguments!!).cameras
 
         /* Asignamos al lifecycleOwner el fragment actual para detectar
