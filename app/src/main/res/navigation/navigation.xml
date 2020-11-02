@@ -6,7 +6,7 @@
     app:startDestination="@id/cameras_fragment">
     <fragment
         android:id="@+id/cameras_fragment"
-        android:name="com.miguelzaragoza.upm.dam.ui.cameras.CamerasFragment"
+        android:name="com.miguelzaragoza.upm.dam.modules.cameras.CamerasFragment"
         android:label="cameras_fragment"
         tools:layout="@layout/fragment_cameras">
         <action
@@ -15,7 +15,7 @@
     </fragment>
     <fragment
         android:id="@+id/map_fragment"
-        android:name="com.miguelzaragoza.upm.dam.ui.map.MapFragment"
+        android:name="com.miguelzaragoza.upm.dam.modules.map.MapFragment"
         android:label="map_fragment"
         tools:layout="@layout/fragment_map">
         <argument
