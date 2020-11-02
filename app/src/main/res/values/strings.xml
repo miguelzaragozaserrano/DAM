@@ -7,4 +7,6 @@
     <string name="title_normal">Normal</string>
     <string name="title_hybrid">Híbrido</string>
     <string name="title_activity_a">Map</string>
+    <string name="actions_asc">Ordenar A-Z</string>
+    <string name="action_desc">Ordenar Z-A</string>
 </resources>
