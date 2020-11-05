@@ -37,7 +37,6 @@ fun bindImage(imgView: ImageView, imgUrl: String?){
                 .into(imgView)
     }
 }
-
 /**
  * Función que asigna la lista de cámaras al RecyclerView.
  * Para ello, le pasamos el View correspondiente a la función y la posible lista de objetos Cámara.
@@ -49,5 +48,5 @@ fun bindImage(imgView: ImageView, imgUrl: String?){
 @BindingAdapter("listCameras")
 fun bindRecyclerView(recyclerView: RecyclerView, cameras: List<Camera>?){
     val adapter = recyclerView.adapter as CamerasAdapter
-    adapter.submitList(cameras)
+    adapter.setData(cameras)
 }
