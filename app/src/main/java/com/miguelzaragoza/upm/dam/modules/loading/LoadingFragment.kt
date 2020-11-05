@@ -54,7 +54,7 @@ class LoadingFragment : Fragment() {
     }
 
     /**
-     * Función que se llamada para instanciar la vista de interfaz de usuario (UI).
+     * Función que se llama para instanciar la vista de interfaz de usuario (UI).
      *
      * @param inflater El objeto LayoutInflater se usa para inflar cualquier vista
      * en el Fragment.
