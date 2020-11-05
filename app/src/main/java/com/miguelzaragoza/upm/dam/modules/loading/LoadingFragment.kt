@@ -45,7 +45,7 @@ class LoadingFragment : Fragment() {
         *  es debido a que se ha detectado un tick del objeto CountDownTimer y por tanto
         *  queremos aumentar el ProgressBar Horizontal */
         loadingViewModel.increaseProgressBar.observe(viewLifecycleOwner, {
-            if(it != null) binding.millisUntilFinished = loadingViewModel.millisUntilFinished.value
+            if(it != null) binding.millisUntilFinished = loadingViewModel.millisUntilFinished
         })
 
         /* Observamos la variable navigateToCamerasFragment. Si toma un valor distinto de null,

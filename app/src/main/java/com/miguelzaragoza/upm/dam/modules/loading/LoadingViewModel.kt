@@ -45,7 +45,7 @@ class LoadingViewModel(application: Application): AndroidViewModel(application) 
     var list = Cameras()
 
     /* Variables para los ProgressBar */
-    var millisUntilFinished = 3000
+    var millisUntilFinished: Int = 0
     val animator: ValueAnimator = ValueAnimator.ofInt(0, 100)
     private var countDownTimer = object: CountDownTimer(3000, 1){
         /**
