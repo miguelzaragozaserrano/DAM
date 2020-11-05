@@ -26,7 +26,8 @@ import java.io.InputStream
  */
 class LoadingViewModel(application: Application): AndroidViewModel(application) {
 
-    /******************************** VARIABLES BÁSICAS ********************************/
+    /******************************** VARIABLES BÁSICAS ********************************
+     ***********************************************************************************/
 
     /* Variables privadas para definir el contexto cuando sea necesario,
     *  y para la ejecución de hilos en segundo plano */
@@ -67,7 +68,6 @@ class LoadingViewModel(application: Application): AndroidViewModel(application) 
     }
 
     /***************************** VARIABLES ENCAPSULADAS *****************************
-     Nos permiten modificar su valor desde el ViewModel pero no desde una clase externa
      **********************************************************************************/
 
     /* Variable para controlar la navegación al siguiente fragmento */
@@ -81,7 +81,8 @@ class LoadingViewModel(application: Application): AndroidViewModel(application) 
         get() = _increaseProgressBar
 
 
-    /********************************* BLOQUE INICIAL *********************************/
+    /********************************* BLOQUE INICIAL *********************************
+     **********************************************************************************/
 
     init {
         /* Lanzamos una CoroutineScope para analizar hilos secundarios */
@@ -90,7 +91,8 @@ class LoadingViewModel(application: Application): AndroidViewModel(application) 
         }
     }
 
-    /*************************** FUNCIONES PRIVADAS BÁSICAS ***************************/
+    /*************************** FUNCIONES PRIVADAS BÁSICAS ***************************
+     **********************************************************************************/
 
     /**
      * Función suspendida que ejecuta a su vez tres hilos secundarios.
@@ -126,7 +128,8 @@ class LoadingViewModel(application: Application): AndroidViewModel(application) 
         _increaseProgressBar.value = null
     }
 
-    /***************************** FUNCIONES PRIVADAS KML *****************************/
+    /***************************** FUNCIONES PRIVADAS KML *****************************
+     **********************************************************************************/
 
     /**
      * Función que se encarga de abrir el fichero KML.
@@ -209,7 +212,6 @@ class LoadingViewModel(application: Application): AndroidViewModel(application) 
     }
 
     /************************* FUNCIONES PRIVADAS getCameras() *************************
-     *** Se ejecutarán en un hilo diferente para evitar bloqueos del hilo secundario ***
      ***********************************************************************************/
 
     /**
@@ -227,7 +229,8 @@ class LoadingViewModel(application: Application): AndroidViewModel(application) 
      */
     private fun getNextText(): String = parser.nextText()
 
-    /************************** FUNCIONES PRIVADAS NAVEGACIÓN *************************/
+    /************************** FUNCIONES PRIVADAS NAVEGACIÓN *************************
+     **********************************************************************************/
 
     /**
      * Función que se llama para activar el proceso de navegación a CamerasFragment.
