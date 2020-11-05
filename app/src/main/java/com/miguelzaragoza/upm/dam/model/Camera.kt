@@ -6,12 +6,14 @@ import kotlinx.android.parcel.Parcelize
 
 /**
  * Clase del objeto Camera.
- * @param name: nombre de la cámara
- * @param url: enlace con el que se obtiene la captura de dicha cámara
- * @param coordinates: coordenadas de donde se ubica la cámara
- * @param status: valor que determina si tenemos la cámara seleccionada (true) o no (false)
+ *
+ * @param name Nombre de la cámara.
+ * @param url Enlace con el que se obtiene la captura de dicha cámara.
+ * @param coordinates Coordenadas de donde se ubica la cámara.
+ * @param status Valor que determina si tenemos la cámara seleccionada (true) o no (false).
  */
 data class Camera(
+    val id: Int,
     val name: String,
     val url: String,
     val coordinates: LatLng,
