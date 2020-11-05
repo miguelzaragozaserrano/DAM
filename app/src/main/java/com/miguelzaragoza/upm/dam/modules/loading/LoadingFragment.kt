@@ -49,7 +49,8 @@ class LoadingFragment : Fragment() {
         loadingViewModel.navigateToCamerasFragment.observe(viewLifecycleOwner, {
             if(it != null) findNavController()
                     .navigate(LoadingFragmentDirections
-                            .actionSplashFragmentToCamerasFragment(loadingViewModel.list))
+                            .actionSplashFragmentToCamerasFragment(loadingViewModel.list)
+                    )
         })
     }
 
