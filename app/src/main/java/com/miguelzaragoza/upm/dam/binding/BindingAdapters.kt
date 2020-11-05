@@ -34,9 +34,11 @@ fun bindImage(imgView: ImageView, imgUrl: String?){
                 .apply(RequestOptions()
                         .placeholder(R.drawable.loading_animation)
                         .error(R.drawable.ic_broken_image))
+                .skipMemoryCache(true)
                 .into(imgView)
     }
 }
+
 /**
  * Función que asigna la lista de cámaras al RecyclerView.
  * Para ello, le pasamos el View correspondiente a la función y la posible lista de objetos Cámara.
