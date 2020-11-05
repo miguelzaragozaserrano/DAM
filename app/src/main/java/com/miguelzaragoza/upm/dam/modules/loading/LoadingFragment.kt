@@ -16,26 +16,57 @@ import com.miguelzaragoza.upm.dam.viewmodel.LoadingViewModelFactory
 */
 class LoadingFragment : Fragment() {
 
+    /**
+     * Inicializamos con lazy nuestro [LoadingViewModel] para crearlo con un método
+     * lifecycle apropiado.
+     */
+    private val loadingViewModel: LoadingViewModel by lazy{
+        val application = requireNotNull(this.activity).application
+        ViewModelProvider(this, LoadingViewModelFactory(application))
+                .get(LoadingViewModel::class.java)
+    }
+
+    /**
+     * Función que se llama inmediatamente después del return de onCreateView() y el
+     * se haya creado la jerarquía de vistas del Fragment. Se puede utilizar para recuperar vistas
+     * o restaurar estados.
+     *
+     * @param view Vista creada recientemente.
+     * @param savedInstanceState Si no es nulo, este Fragment se está reconstruyendo a partir
+     * de un estado guardado anterior como se indica aquí.
+     */
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        /* Observamos la variable navigateToCamerasFragment. Si toma un valor distinto de null,
+        *  es debido a que se ha completado el ProgressBar Horizontal
+        *  y por tanto navegamos a un segundo fragment */
+        loadingViewModel.navigateToCamerasFragment.observe(viewLifecycleOwner, {
+            if(it != null) findNavController()
+                    .navigate(LoadingFragmentDirections
+                            .actionSplashFragmentToCamerasFragment(loadingViewModel.list))
+        })
+    }
+
+    /**
+     * Función que se llamada para instanciar la vista de interfaz de usuario (UI).
+     *
+     * @param inflater El objeto LayoutInflater se usa para inflar cualquier vista
+     * en el Fragment.
+     * @param container Si no es nulo, esta es la vista principal a la que se debe adjuntar
+     * la UI del Fragment. El Fragment no debe agregar la vista en sí, pero esto puede
+     * usarse para generar los LayoutParams de la vista.
+     * @param savedInstanceState Si no es nulo, este Fragment se está reconstruyendo a partir
+     * de un estado guardado anterior como se indica aquí.
+     *
+     * @return Devuelve la vista UI del Fragment.
+     */
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        /* Usamos la librería DataBinding para inflar el Fragment con el layout correspondiente */
         val binding = FragmentLoadingBinding.inflate(inflater)
 
-        /* Obtenemos el activity de la aplicación para pasarselo como parámetro al ViewModel y
-        *  de esa manera poder obtener el contexto correspondiente allí */
-        val application = requireNotNull(this.activity).application
-
-        /* Como necesitamos pasarle un parámetro al ViewModel por el constructor,
-        *  tenemos que crear un ViewModelFactory */
-        val viewModelFactory = LoadingViewModelFactory(application)
-
-        /* Declaramos nuestra variable del ViewModel para poder interactuar con él */
-        val loadingViewModel = ViewModelProvider(this, viewModelFactory).get(LoadingViewModel::class.java)
-
-        /* Asignamos al lifecycleOwner el fragment actual para detectar
-        *  los cambios de los objetos LiveData */
+        /* Permite a Data Binding observar LiveData con el lifecycle de su Fragment */
         binding.lifecycleOwner = this
 
         /* Le asignamos al ProgressBar Circle la animación que nos interesa */
@@ -48,14 +79,6 @@ class LoadingFragment : Fragment() {
             if(it != null) binding.millisUntilFinished = loadingViewModel.millisUntilFinished
         })
 
-        /* Observamos la variable navigateToCamerasFragment. Si toma un valor distinto de null,
-        *  es debido a que se ha completado el ProgressBar Horizontal
-        *  y por tanto navegamos a un segundo fragment */
-        loadingViewModel.navigateToCamerasFragment.observe(viewLifecycleOwner, {
-            if(it != null) findNavController().navigate(LoadingFragmentDirections.actionSplashFragmentToCamerasFragment(loadingViewModel.list))
-        })
-
-        /* Devolvemos la vista más externa del layout asociado con el binding */
         return binding.root
     }
 
