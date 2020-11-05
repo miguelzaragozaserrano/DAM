@@ -76,7 +76,9 @@ class LoadingFragment : Fragment() {
         binding.lifecycleOwner = this
 
         /* Le asignamos al ProgressBar Circle la animación que nos interesa */
-        loadingViewModel.animator.addUpdateListener { animation -> binding.progressCircle.progress = animation.animatedValue as Int }
+        loadingViewModel.animator
+                .addUpdateListener { animation ->
+                    binding.progressCircle.progress = animation.animatedValue as Int }
 
         /* Observamos la variable increaseProgressBar. Si toma un valor distinto de null,
         *  es debido a que se ha detectado un tick del objeto CountDownTimer y por tanto
