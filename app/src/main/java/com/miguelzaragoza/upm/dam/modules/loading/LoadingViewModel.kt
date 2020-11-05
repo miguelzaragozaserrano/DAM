@@ -27,6 +27,7 @@ import java.io.InputStream
 class LoadingViewModel(application: Application): AndroidViewModel(application) {
 
     /******************************** VARIABLES BÁSICAS ********************************/
+
     /* Variables privadas para definir el contexto cuando sea necesario,
     *  y para la ejecución de hilos en segundo plano */
     private val context = application.applicationContext
@@ -47,10 +48,11 @@ class LoadingViewModel(application: Application): AndroidViewModel(application) 
     /* Variables para los ProgressBar */
     var millisUntilFinished: Int = 0
     val animator: ValueAnimator = ValueAnimator.ofInt(0, 100)
-    private var countDownTimer = object: CountDownTimer(3000, 1){
+    private var countDownTimer
+            = object: CountDownTimer(3000, 1){
         /**
          * Función que se carga con cada countDownInterval.
-         * @param p0: tiempo que queda para que se termine
+         * @param p0: tiempo que queda para que se termine el CountDownTimer
          */
         override fun onTick(p0: Long) {
             millisUntilFinished = (p0 / 100 - 100).toInt()
@@ -67,6 +69,7 @@ class LoadingViewModel(application: Application): AndroidViewModel(application) 
     /***************************** VARIABLES ENCAPSULADAS *****************************
      Nos permiten modificar su valor desde el ViewModel pero no desde una clase externa
      **********************************************************************************/
+
     /* Variable para controlar la navegación al siguiente fragmento */
     private val _navigateToCamerasFragment = MutableLiveData<Boolean>()
     val navigateToCamerasFragment: LiveData<Boolean>
@@ -79,6 +82,7 @@ class LoadingViewModel(application: Application): AndroidViewModel(application) 
 
 
     /********************************* BLOQUE INICIAL *********************************/
+
     init {
         /* Lanzamos una CoroutineScope para analizar hilos secundarios */
         coroutineScope.launch {
@@ -87,6 +91,7 @@ class LoadingViewModel(application: Application): AndroidViewModel(application) 
     }
 
     /*************************** FUNCIONES PRIVADAS BÁSICAS ***************************/
+
     /**
      * Función suspendida que ejecuta a su vez tres hilos secundarios.
      */
@@ -105,6 +110,7 @@ class LoadingViewModel(application: Application): AndroidViewModel(application) 
             countDownTimer.start()
         }
     }
+
     /**
      * Función que activa el proceso de incrementar el ProgressBar.
      */
@@ -112,6 +118,7 @@ class LoadingViewModel(application: Application): AndroidViewModel(application) 
         _increaseProgressBar.value = true
         increaseBarComplete()
     }
+
     /**
      * Función que certifica que el proceso de incrementar se ha completado.
      */
@@ -120,12 +127,14 @@ class LoadingViewModel(application: Application): AndroidViewModel(application) 
     }
 
     /***************************** FUNCIONES PRIVADAS KML *****************************/
+
     /**
      * Función que se encarga de abrir el fichero KML.
      */
     private fun openFile() {
         inputStream = context.assets.open("CCTV.kml")
     }
+
     /**
      * Función suspendida que recorre el fichero KML para obtener los datos que necesitamos.
      */
@@ -202,20 +211,24 @@ class LoadingViewModel(application: Application): AndroidViewModel(application) 
     /************************* FUNCIONES PRIVADAS getCameras() *************************
      *** Se ejecutarán en un hilo diferente para evitar bloqueos del hilo secundario ***
      ***********************************************************************************/
+
     /**
      * Función que nos devuelve el siguiente tipo de evento.
      */
     private fun getNext(): Int = parser.next()
+
     /**
      * Función que nos devuelve la siguiente etiqueta.
      */
     private fun getNextTag(): Int = parser.nextTag()
+
     /**
      * Función que nos devuelve el siguiente texto.
      */
     private fun getNextText(): String = parser.nextText()
 
     /************************** FUNCIONES PRIVADAS NAVEGACIÓN *************************/
+
     /**
      * Función que se llama para activar el proceso de navegación a CamerasFragment.
      */
@@ -223,6 +236,7 @@ class LoadingViewModel(application: Application): AndroidViewModel(application) 
         _navigateToCamerasFragment.value = true
         showListComplete()
     }
+
     /**
      * Función que certifica que el proceso de navegación se ha completado.
      */
