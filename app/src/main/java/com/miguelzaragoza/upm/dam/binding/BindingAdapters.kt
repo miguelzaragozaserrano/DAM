@@ -5,6 +5,7 @@ import androidx.core.net.toUri
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.miguelzaragoza.upm.dam.R
 import com.miguelzaragoza.upm.dam.model.Camera
@@ -35,6 +36,7 @@ fun bindImage(imgView: ImageView, imgUrl: String?){
                         .placeholder(R.drawable.loading_animation)
                         .error(R.drawable.ic_broken_image))
                 .skipMemoryCache(true)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .into(imgView)
     }
 }
