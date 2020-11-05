@@ -16,6 +16,9 @@ import com.miguelzaragoza.upm.dam.viewmodel.LoadingViewModelFactory
 */
 class LoadingFragment : Fragment() {
 
+    /******************************** VARIABLES BÁSICAS ********************************
+     ***********************************************************************************/
+
     /**
      * Inicializamos con lazy nuestro [LoadingViewModel] para crearlo con un método
      * lifecycle apropiado.
@@ -25,6 +28,9 @@ class LoadingFragment : Fragment() {
         ViewModelProvider(this, LoadingViewModelFactory(application))
                 .get(LoadingViewModel::class.java)
     }
+
+    /******************************* FUNCIONES OVERRIDE *******************************
+     **********************************************************************************/
 
     /**
      * Función que se llama inmediatamente después del return de onCreateView() y el
