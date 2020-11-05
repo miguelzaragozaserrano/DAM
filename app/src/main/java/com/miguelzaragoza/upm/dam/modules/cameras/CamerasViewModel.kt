@@ -1,35 +1,28 @@
 package com.miguelzaragoza.upm.dam.modules.cameras
 
-import android.app.Application
-import android.util.Xml
+import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.google.android.gms.maps.model.LatLng
+import androidx.lifecycle.ViewModel
 import com.miguelzaragoza.upm.dam.model.Camera
 import com.miguelzaragoza.upm.dam.model.Cameras
-import com.miguelzaragoza.upm.dam.modules.base.BaseViewModel
 import com.miguelzaragoza.upm.dam.modules.common.CamerasAdapter
 import com.miguelzaragoza.upm.dam.modules.common.OnClickListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.xmlpull.v1.XmlPullParser
-import org.xmlpull.v1.XmlPullParserException
-import java.io.IOException
-import java.io.InputStream
 
 /**
  * ViewModel que realizará las funciones lógicas y almacenará los datos del
  * CamerasFragment.
- * @param application: objeto Application que nos permitirá obtener el contexto de la aplicación
  */
-class CamerasViewModel(application: Application): BaseViewModel(application) {
+class CamerasViewModel: ViewModel() {
 
-    /******************************** VARIABLES BÁSICAS ********************************/
-    /* Variables privadas para definir el contexto cuando sea necesario,
-    *  y para la ejecución de hilos en segundo plano */
-    private val context = application.applicationContext
+    /******************************** VARIABLES BÁSICAS ********************************
+     ***********************************************************************************/
+
+    /* Variable privada para la ejecución de hilos en segundo plano */
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
     /* Variable pública que crea el objeto CameraAdaper
@@ -39,27 +32,22 @@ class CamerasViewModel(application: Application): BaseViewModel(application) {
     })
 
     /* Variables para guardar la lista que se comparte en el mapa
-    *  y la lista del primer fragmento */
+    *  y la lista que se muestra en el propio fragmento */
     var sharedList = Cameras()
-    private var list = Cameras()
-
-    /* Variable que nos ayuda con el número de cámaras que queremos mostrar en el mapa */
-    private var singleMode: Boolean = false
+    var list = Cameras()
 
     /* Variable de la última cámara seleccionada */
     private var lastCamera: Camera? = null
 
-    /* Variables privadas para la lectura del fichero KML */
-    private lateinit var inputStream: InputStream
-    private lateinit var coordinates: String
-    private lateinit var url: String
-    private lateinit var name: String
-    private lateinit var parser: XmlPullParser
-    private var latitude: Double = 0.0
-    private var longitude: Double = 0.0
+    /* Variables que nos ayudan con las opciones del menú */
+    var order: Int = NOT_ORDER
+    var focus: Boolean = false
+    var querySearched: String = ""
+    var showAllCameras: Boolean = false
+    lateinit var searchView: SearchView
+
 
     /***************************** VARIABLES ENCAPSULADAS *****************************
-     Nos permiten modificar su valor desde el ViewModel pero no desde una clase externa
      **********************************************************************************/
 
     /* Variable de la cámara actual */
@@ -72,38 +60,25 @@ class CamerasViewModel(application: Application): BaseViewModel(application) {
     val cameras: LiveData<List<Camera>>
         get() = _cameras
 
-    /* Variable para controlar la navegación al mapa */
+    /* Variable para controlar la navegación al siguiente fragmento */
     private val _navigateToSelectedCamera = MutableLiveData<Boolean>()
     val navigateToSelectedCamera: LiveData<Boolean>
         get() = _navigateToSelectedCamera
 
-    /********************************* BLOQUE INICIAL *********************************/
-    init {
-        /* Utilizamos un hilo secundario para realizar el setup */
-        coroutineScope.launch {
-            initialSetup()
-        }
-    }
+    /********************************* BLOQUE INICIAL *********************************
+     **********************************************************************************/
 
-    /*************************** FUNCIONES PRIVADAS BÁSICAS ***************************/
-    /**
-     * Función suspendida que ejecuta a su vez dos hilos secundarios.
-     */
-    private suspend fun initialSetup(){
-        /* Hilo que abrirá y recorrerá el KML */
-        withContext(Dispatchers.IO){
-            openFile()
-            getCameras()
-        }
-        /* Inicializamos las variables de la última cámara seleccionada
-        *  y de la lista de cámaras */
+    init {
         _cameras.value = list
     }
 
-    /*************************** FUNCIONES PRIVADAS ADAPTER ***************************/
+    /*************************** FUNCIONES PRIVADAS ADAPTER ***************************
+     **********************************************************************************/
+
     /**
      * Función que ejecuta un hilo secundario.
-     * @param camera: cámara seleccionada
+     *
+     * @param camera Cámara seleccionada.
      */
     private fun selectedCamera(camera: Camera){
         coroutineScope.launch {
@@ -114,7 +89,8 @@ class CamerasViewModel(application: Application): BaseViewModel(application) {
     /**
      * Función suspendida que actualiza el status
      * de la cámara para activar o desactivar el RadioButton.
-     * @param camera: cámara a la que queremos activar el tick
+     *
+     * @param camera Cámara a la que queremos activar el check.
      */
     private suspend fun displayCheck(camera: Camera){
         withContext(Dispatchers.Main){
@@ -133,108 +109,14 @@ class CamerasViewModel(application: Application): BaseViewModel(application) {
                 camera.status = true
                 _camera.value = camera
             }
+            /* Avisamos al adaptador de los cambios */
             adapter.notifyDataSetChanged()
         }
     }
 
-    /***************************** FUNCIONES PRIVADAS KML *****************************/
-    /**
-     * Función que se encarga de abrir el fichero KML.
-     */
-    private fun openFile() {
-        inputStream = context.assets.open("CCTV.kml")
-    }
+    /***************************** FUNCIONES PRIVADAS NAV *****************************
+     **********************************************************************************/
 
-    /**
-     * Función suspendida que recorre el fichero KML para obtener los datos que necesitamos.
-     */
-    private suspend fun getCameras(){
-        try{
-            parser = Xml.newPullParser()
-            parser.setInput(inputStream, null)
-            var typeEvent: Int
-            /* Repetimos el bucle hasta el final del documento */
-            do{
-                typeEvent = parser.eventType
-                if(typeEvent == XmlPullParser.START_TAG){
-                    /* Analizamos el nombre de la etiqueta */
-                    when(parser.name){
-                        /* Si es "Data" ... */
-                        "Data" -> {
-                            /* ... comprobamos que el primer atributo sea el nombre de la cámara */
-                            if(parser.getAttributeValue(0) == "Nombre"){
-                                /* Ejecutamos un hilo independiente del secundario para obtener la siguiente etiqueta */
-                                withContext(Dispatchers.IO){
-                                    getNextTag()
-                                }
-                                /* Ejecutamos un hilo indpendiente del secundario para obtener
-                                *  el siguiente texto y guardarlo en la variable name */
-                                withContext(Dispatchers.IO){
-                                    name = getNextText()
-                                }
-                            }
-                        }
-                        /* Si es "description" ... */
-                        "description" -> {
-                            /* Ejecutamos un hilo independiente del secundario para obtener
-                            *  el siguiente texto, quedarnos solamente con la URL y
-                            *  guardarlo en la variable url */
-                            withContext(Dispatchers.IO){
-                                url = getNextText()
-                                        .substringAfter("src=")
-                                        .substringBefore("  width")
-                            }
-                        }
-                        /* Si es "coordinates" ... */
-                        "coordinates" -> {
-                            /* Ejecutamos un hio independiente del secundario para obtener
-                            *  el siguiente texto y guardarlo en la variable coordinates */
-                            withContext(Dispatchers.IO){
-                                coordinates = getNextText().substringBefore(",10")
-                                latitude = coordinates.substringAfter(",").toDouble()
-                                longitude = coordinates.substringBefore(",").toDouble()
-                            }
-                            /* Como las coordenadas son el último valor que se obtiene
-                            *  de cada cámara, creamos un objeto Camera y lo añadimos a la lista
-                            *  de cámaras */
-                            list.add(Camera(name, url, LatLng(latitude, longitude), false))
-                            sharedList.add(Camera(name, url, LatLng(latitude, longitude), false))
-                        }
-                    }
-                }
-                /* Ejecutamos un hilo independiente del secundario para
-                *  obtener el siguiente tipo de evento */
-                withContext(Dispatchers.IO){
-                    typeEvent = getNext()
-                }
-            }while(typeEvent != XmlPullParser.END_DOCUMENT)
-        }catch (e: IOException){
-            /* Capturamos las posibles excepciones */
-            e.printStackTrace()
-        }catch (e: XmlPullParserException){
-            /* Capturamos las posibles excepciones */
-            e.printStackTrace()
-        }
-    }
-
-    /************************ FUNCIONES PRIVADAS DE getCameras() ************************
-     *** Se ejecutarán en un hilo diferente para evitar bloqueos del hilo secundario ***
-     ***********************************************************************************/
-    /**
-     * Función que nos devuelve el siguiente tipo de evento.
-     */
-    private fun getNext(): Int = parser.next()
-    /**
-     * Función que nos devuelve la siguiente etiqueta.
-     */
-    private fun getNextTag(): Int = parser.nextTag()
-    /**
-     * Función que nos devuelve el siguiente texto.
-     */
-    private fun getNextText(): String = parser.nextText()
-
-
-    /***************************** FUNCIONES PRIVADAS NAV *****************************/
     /**
      * Función que se llama desde el XML para activar el proceso de navegación al mapa.
      */
@@ -250,24 +132,8 @@ class CamerasViewModel(application: Application): BaseViewModel(application) {
         _navigateToSelectedCamera.value = null
     }
 
-    /***************************** FUNCIONES PARA EL MENÚ *****************************/
-    /**
-     * Función que ordena la lista de cámaras alfabéticamente en orden ascendente.
-     */
-    fun getAscendingList(){
-        _cameras.value = cameras.value?.sortedBy {camera ->
-            camera.name
-        }
-    }
-
-    /**
-     * Función que ordena la lista de cámaras alfabéticamente en orden descendente.
-     */
-    fun getDescendingList(){
-        _cameras.value = cameras.value?.sortedByDescending {camera ->
-            camera.name
-        }
-    }
+    /***************************** FUNCIONES PRIVADAS MENÚ *****************************
+     ***********************************************************************************/
 
     /**
      * Función que asigna la sharedList con el valor de la cámara seleccionada.
@@ -284,7 +150,7 @@ class CamerasViewModel(application: Application): BaseViewModel(application) {
      */
     private fun getMultipleCameras(){
         sharedList.clear()
-        for(camera in cameras.value!!){
+        for(camera in list){
             sharedList.add(camera)
         }
     }
@@ -293,17 +159,19 @@ class CamerasViewModel(application: Application): BaseViewModel(application) {
      * Función, que dependiendo de las cámaras que quieres mostrar, llama a una función u otra.
      */
     fun setSharedList(){
-        if(singleMode) getSingleCamera()
-        else getMultipleCameras()
+        if(showAllCameras) getMultipleCameras()
+        else getSingleCamera()
     }
 
     /**
-     * Función que actualiza el valor del singleMode, para saber si queremos mostrar una
+     * Función que actualiza el valor de showAllCameras, para saber si queremos mostrar una
      * cámara o todas.
-     * @param value: variable que determina si el valor del singleMode es true o false
+     *
+     * @param value Variable que determina si el checkable de la opción "Todas" está
+     * activado o no.
      */
     fun setMode(value: Boolean){
-        singleMode = value
+        showAllCameras = value
     }
 
 }
