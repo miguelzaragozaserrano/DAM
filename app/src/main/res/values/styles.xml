@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="DAMTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
-        <item name="colorPrimary">#1a237e</item>
-        <item name="colorSecondary">#000051</item>
-        <item name="colorSurface">#c5cae9</item>
-        <item name="colorOnSurface">#fff</item>
-        <item name="android:statusBarColor">#000051</item>
+        <item name="colorPrimary">@color/indigo_900</item>
+        <item name="colorSecondary">@color/indigo_900_dark</item>
+        <item name="colorSurface">@color/indigo_100</item>
+        <item name="colorOnSurface">@color/white_50</item>
+        <item name="android:statusBarColor">@color/indigo_900_dark</item>
     </style>
 </resources>
