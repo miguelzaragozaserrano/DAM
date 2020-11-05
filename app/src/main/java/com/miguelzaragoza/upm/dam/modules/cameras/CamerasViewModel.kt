@@ -1,5 +1,6 @@
 package com.miguelzaragoza.upm.dam.modules.cameras
 
+import android.view.MenuItem
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -45,6 +46,8 @@ class CamerasViewModel: ViewModel() {
     var querySearched: String = ""
     var showAllCameras: Boolean = false
     lateinit var searchView: SearchView
+    lateinit var iconOrder: MenuItem
+    lateinit var iconSearch: MenuItem
 
 
     /***************************** VARIABLES ENCAPSULADAS *****************************
