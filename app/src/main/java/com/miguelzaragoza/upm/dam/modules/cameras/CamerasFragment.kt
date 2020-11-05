@@ -110,10 +110,13 @@ class CamerasFragment : Fragment() {
         /* Indicamos que va a existir un menú de opciones */
         setHasOptionsMenu(true)
 
-        /* Recogemos la lista de cámaras que se pasa entre fragmentos */
-        val cameras = CamerasFragmentArgs.fromBundle(requireArguments()).cameras
-        camerasViewModel.list.addAll(cameras)
-        camerasViewModel.sharedList.addAll(cameras)
+        /* Recogemos la lista de cámaras que se pasa entre fragmentos solamente si la lista
+        *  de CamerasFragment está vacía */
+        if(camerasViewModel.list.isEmpty()){
+            val cameras = CamerasFragmentArgs.fromBundle(requireArguments()).cameras
+            camerasViewModel.list.addAll(cameras)
+            camerasViewModel.sharedList.addAll(cameras)
+        }
 
         return binding.root
     }
