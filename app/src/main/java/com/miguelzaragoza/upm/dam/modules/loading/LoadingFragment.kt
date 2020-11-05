@@ -9,7 +9,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.miguelzaragoza.upm.dam.databinding.FragmentLoadingBinding
 import com.miguelzaragoza.upm.dam.viewmodel.LoadingViewModelFactory
-import kotlin.math.abs
 
 /**
 * Fragment que muestra la primera pantalla
@@ -33,27 +32,27 @@ class LoadingFragment : Fragment() {
         val viewModelFactory = LoadingViewModelFactory(application)
 
         /* Declaramos nuestra variable del ViewModel para poder interactuar con él */
-        val splashViewModel = ViewModelProvider(this, viewModelFactory).get(LoadingViewModel::class.java)
+        val loadingViewModel = ViewModelProvider(this, viewModelFactory).get(LoadingViewModel::class.java)
 
         /* Asignamos al lifecycleOwner el fragment actual para detectar
         *  los cambios de los objetos LiveData */
         binding.lifecycleOwner = this
 
         /* Le asignamos al ProgressBar Circle la animación que nos interesa */
-        splashViewModel.animator.addUpdateListener { animation -> binding.progressCircle.progress = animation.animatedValue as Int }
+        loadingViewModel.animator.addUpdateListener { animation -> binding.progressCircle.progress = animation.animatedValue as Int }
 
         /* Observamos la variable increaseProgressBar. Si toma un valor distinto de null,
         *  es debido a que se ha detectado un tick del objeto CountDownTimer y por tanto
         *  queremos aumentar el ProgressBar Horizontal */
-        splashViewModel.increaseProgressBar.observe(viewLifecycleOwner, {
-            if(it != null) binding.progressHorizontal.progress = abs(splashViewModel.millisUntilFinished)
+        loadingViewModel.increaseProgressBar.observe(viewLifecycleOwner, {
+            if(it != null) binding.millisUntilFinished = loadingViewModel.millisUntilFinished.value
         })
 
         /* Observamos la variable navigateToCamerasFragment. Si toma un valor distinto de null,
         *  es debido a que se ha completado el ProgressBar Horizontal
         *  y por tanto navegamos a un segundo fragment */
-        splashViewModel.navigateToCamerasFragment.observe(viewLifecycleOwner, {
-            if(it != null) findNavController().navigate(LoadingFragmentDirections.actionSplashFragmentToCamerasFragment(splashViewModel.list))
+        loadingViewModel.navigateToCamerasFragment.observe(viewLifecycleOwner, {
+            if(it != null) findNavController().navigate(LoadingFragmentDirections.actionSplashFragmentToCamerasFragment(loadingViewModel.list))
         })
 
         /* Devolvemos la vista más externa del layout asociado con el binding */
