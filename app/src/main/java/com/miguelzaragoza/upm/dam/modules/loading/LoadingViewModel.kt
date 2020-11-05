@@ -157,7 +157,8 @@ class LoadingViewModel(application: Application): AndroidViewModel(application) 
                         "Data" -> {
                             /* ... comprobamos que el primer atributo sea el nombre de la cámara */
                             if(parser.getAttributeValue(0) == "Nombre"){
-                                /* Ejecutamos un hilo independiente al secundario para obtener la siguiente etiqueta */
+                                /* Ejecutamos un hilo independiente al secundario
+                                *  para obtener la siguiente etiqueta */
                                 withContext(Dispatchers.IO){
                                     getNextTag()
                                 }
@@ -192,7 +193,13 @@ class LoadingViewModel(application: Application): AndroidViewModel(application) 
                             /* Como las coordenadas son el último valor que se obtiene
                             *  de cada cámara, creamos un objeto Camera y lo añadimos a la lista
                             *  de cámaras */
-                            list.add(Camera(list.size + 1, name, url, LatLng(latitude, longitude), false))
+                            list.add(
+                                    Camera(list.size + 1,
+                                            name,
+                                            url,
+                                            LatLng(latitude, longitude),
+                                            false)
+                            )
                         }
                     }
                 }
