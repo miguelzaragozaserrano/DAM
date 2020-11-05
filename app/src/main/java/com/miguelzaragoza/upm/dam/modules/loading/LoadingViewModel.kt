@@ -105,7 +105,6 @@ class LoadingViewModel(application: Application): AndroidViewModel(application) 
             countDownTimer.start()
         }
     }
-
     /**
      * Función que activa el proceso de incrementar el ProgressBar.
      */
