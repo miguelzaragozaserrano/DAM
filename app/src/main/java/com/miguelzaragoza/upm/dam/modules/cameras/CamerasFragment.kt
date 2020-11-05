@@ -59,7 +59,10 @@ class CamerasFragment : Fragment() {
             if (it != null && camerasViewModel.camera.value != null) {
                 saveQuery()
                 camerasViewModel.setSharedList()
-                findNavController().navigate(CamerasFragmentDirections.actionCamerasFragmentToMapsFragment(camerasViewModel.sharedList))
+                findNavController()
+                        .navigate(CamerasFragmentDirections
+                                .actionCamerasFragmentToMapsFragment(camerasViewModel.sharedList)
+                        )
             }
         })
 
@@ -218,7 +221,9 @@ class CamerasFragment : Fragment() {
             R.id.action_reset -> {
                 /* Si pulsamos la opción de resetear la lista, volvemos al Fragment anterior */
                 findNavController()
-                        .navigate(CamerasFragmentDirections.actionCamerasFragmentToSplashFragment())
+                        .navigate(CamerasFragmentDirections
+                                .actionCamerasFragmentToSplashFragment()
+                        )
                 return true
             }
             R.id.action_all -> {
