@@ -35,6 +35,8 @@ class CamerasFragment : Fragment() {
                 .get(CamerasViewModel::class.java)
     }
 
+    private lateinit var searchView: SearchView
+
     /******************************* FUNCIONES OVERRIDE *******************************
      **********************************************************************************/
 
@@ -61,24 +63,6 @@ class CamerasFragment : Fragment() {
                         )
             }
         })
-
-        /* Analizamos el estado en el que estábamos cuando regresamos al Fragment */
-        when(camerasViewModel.order){
-            ASCENDING_ORDER -> {
-                /* Mostramos la lista */
-                camerasViewModel.adapter.filterDescending()
-                /* Cambiamos el icono */
-                camerasViewModel.iconOrder.icon = ContextCompat
-                        .getDrawable(requireContext(), R.drawable.ic_ascending_order)
-            }
-            DESCENDING_ORDER -> {
-                /* Mostramos la lista */
-                camerasViewModel.adapter.filterAscending()
-                /* Cambiamos el icono */
-                camerasViewModel.iconOrder.icon = ContextCompat
-                        .getDrawable(requireContext(), R.drawable.ic_descending_order)
-            }
-        }
     }
 
     /**
@@ -131,29 +115,44 @@ class CamerasFragment : Fragment() {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.menu, menu)
 
-        /* Inicializamos nuestro icono para ordenar la lista alfabéticamente */
-        camerasViewModel.iconOrder = menu.findItem(R.id.order_icon)
+        /* Analizamos el estado en el que estábamos cuando regresamos al Fragment */
+        when(camerasViewModel.order){
+            ASCENDING_ORDER -> {
+                /* Mostramos la lista */
+                camerasViewModel.adapter.filterDescending()
+                /* Cambiamos el icono */
+                menu.findItem(R.id.order_icon).icon = ContextCompat
+                    .getDrawable(requireContext(), R.drawable.ic_ascending_order)
+            }
+            DESCENDING_ORDER -> {
+                /* Mostramos la lista */
+                camerasViewModel.adapter.filterAscending()
+                /* Cambiamos el icono */
+                menu.findItem(R.id.order_icon).icon = ContextCompat
+                    .getDrawable(requireContext(), R.drawable.ic_descending_order)
+            }
+        }
 
         /* Inicialiazamos nuestro SearchView */
-        camerasViewModel.iconSearch = menu.findItem(R.id.search_icon)
-        camerasViewModel.searchView = camerasViewModel.iconSearch.actionView as SearchView
+        val iconSearch = menu.findItem(R.id.search_icon)
+        searchView = iconSearch.actionView as SearchView
 
         /* Le asignamos un hint para ayudar al usuario y el máximo ancho posible */
-        camerasViewModel.searchView.queryHint = getString(R.string.search_query_hint)
-        camerasViewModel.searchView.maxWidth = Integer.MAX_VALUE
+        searchView.queryHint = getString(R.string.search_query_hint)
+        searchView.maxWidth = Integer.MAX_VALUE
 
         /* Declaramos un setOnActionExpandListener para ocultar los iconos y así poder
         *  expandir el SearchView. Además guardamos el valor focus para saber si cuando
         *  cambiamos de Fragment, teníamos el SearchView activo o no */
-        camerasViewModel.iconSearch.setOnActionExpandListener(
+        iconSearch.setOnActionExpandListener(
                 object: MenuItem.OnActionExpandListener{
             override fun onMenuItemActionExpand(p0: MenuItem?): Boolean {
-                setItemsVisibility(menu, camerasViewModel.iconSearch, false)
+                setItemsVisibility(menu, iconSearch, false)
                 camerasViewModel.focus = true
                 return true
             }
             override fun onMenuItemActionCollapse(p0: MenuItem?): Boolean {
-                setItemsVisibility(menu, camerasViewModel.iconSearch, true)
+                setItemsVisibility(menu, iconSearch, true)
                 camerasViewModel.focus = false
                 return true
             }
@@ -162,7 +161,7 @@ class CamerasFragment : Fragment() {
         /* Declaramos un setOnQueryListener para que cada vez que cambie el texto del SearchView
         *  nos filtre la lista que nos interesa. En caso de que pulsemos la lupa, cierra el
         *  teclado */
-        camerasViewModel.searchView.setOnQueryTextListener(
+        searchView.setOnQueryTextListener(
                 object : SearchView.OnQueryTextListener {
                     override fun onQueryTextSubmit(query: String?): Boolean {
                         return false
@@ -176,8 +175,10 @@ class CamerasFragment : Fragment() {
         /* En caso de que el SearchView estuviera activo, lo volvemos a abrir y le asignamos
         *  el valor de la query que tenía escrita */
         if(camerasViewModel.focus){
-            camerasViewModel.iconSearch.expandActionView()
-            camerasViewModel.searchView.setQuery(camerasViewModel.querySearched, false)
+            iconSearch.expandActionView()
+            searchView.isIconified = false
+            searchView.clearFocus()
+            searchView.setQuery(camerasViewModel.querySearched, false)
         }
 
         /* Comprobamos si la opción de mostrar todas las cámaras estaba seleccionada o no */
@@ -246,7 +247,7 @@ class CamerasFragment : Fragment() {
      * cuando volvamos a este Fragment.
      */
     private fun saveQuery(){
-        camerasViewModel.querySearched = camerasViewModel.searchView.query.toString()
+        camerasViewModel.querySearched = searchView.query.toString()
     }
 
     /**
