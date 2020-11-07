@@ -45,9 +45,6 @@ class CamerasViewModel: ViewModel() {
     var focus: Boolean = false
     var querySearched: String = ""
     var showAllCameras: Boolean = false
-    lateinit var searchView: SearchView
-    lateinit var iconOrder: MenuItem
-    lateinit var iconSearch: MenuItem
 
 
     /***************************** VARIABLES ENCAPSULADAS *****************************
