@@ -1,16 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/action_asc"
-        android:title="@string/action_asc" />
+        android:id="@+id/search_icon"
+        android:icon="@drawable/ic_search_white_24dp"
+        android:title="@string/search"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        app:showAsAction="ifRoom|collapseActionView" />
     <item
-        android:id="@+id/action_desc"
-        android:title="@string/action_desc" />
-    <group android:checkableBehavior="single">
-        <item android:id="@+id/single_camera"
-            android:title="@string/single_camera"/>
-        <item android:id="@+id/multiple_cameras"
-            android:title="@string/multiple_cameras"
-            android:checked="true"/>
-    </group>
+        android:id="@+id/order_icon"
+        android:icon="@drawable/ic_ascending_order"
+        android:title="@string/order_button"
+        app:showAsAction="ifRoom|collapseActionView" />
+    <item
+        android:id="@+id/action_all"
+        android:checkable="true"
+        android:title="@string/action_multiple" />
+   <item
+        android:id="@+id/action_reset"
+        android:title="@string/action_reset"/>
 </menu>
