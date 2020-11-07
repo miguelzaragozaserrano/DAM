@@ -1,5 +1,6 @@
 package com.miguelzaragoza.upm.dam.binding
 
+import android.os.Bundle
 import android.widget.ImageView
 import androidx.core.net.toUri
 import androidx.databinding.BindingAdapter
@@ -7,8 +8,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.MapView
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.MarkerOptions
 import com.miguelzaragoza.upm.dam.R
 import com.miguelzaragoza.upm.dam.model.Camera
+import com.miguelzaragoza.upm.dam.model.Cameras
 import com.miguelzaragoza.upm.dam.modules.common.CamerasAdapter
 
 /***************************** CLASE BINDING ADAPTERS *****************************
@@ -53,4 +60,24 @@ fun bindImage(imgView: ImageView, imgUrl: String?){
 fun bindRecyclerView(recyclerView: RecyclerView, cameras: List<Camera>?){
     val adapter = recyclerView.adapter as CamerasAdapter
     adapter.setData(cameras)
+}
+
+@BindingAdapter("initMap")
+fun bindMapView(mapView: MapView, cameras: Cameras?){
+    mapView.onCreate(Bundle())
+    mapView.getMapAsync {
+        mapView.onResume()
+        it.mapType = GoogleMap.MAP_TYPE_NORMAL
+
+        val cameraPosition = CameraPosition.Builder().target(cameras?.get(0)?.coordinates).zoom(12F).build()
+        it.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
+
+        cameras?.map { camera ->
+            it.addMarker(
+                    MarkerOptions()
+                            .position(camera.coordinates)
+                            .title(camera.name)
+            )
+        }
+    }
 }
