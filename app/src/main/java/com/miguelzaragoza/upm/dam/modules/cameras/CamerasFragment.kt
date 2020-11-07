@@ -35,6 +35,7 @@ class CamerasFragment : Fragment() {
                 .get(CamerasViewModel::class.java)
     }
 
+    /* Variable privada para almacenar el SearchView */
     private lateinit var searchView: SearchView
 
     /******************************* FUNCIONES OVERRIDE *******************************
