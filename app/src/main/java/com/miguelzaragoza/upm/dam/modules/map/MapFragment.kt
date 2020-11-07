@@ -11,44 +11,59 @@ import com.miguelzaragoza.upm.dam.databinding.FragmentMapBinding
 import com.miguelzaragoza.upm.dam.viewmodel.MapViewModelFactory
 
 /**
- * Fragment que muestra la segunda pantalla
- * donde aparece el mapa de Google
+ * Fragment que muestra la tercera pantalla
+ * donde aparece el mapa con las cámaras.
  */
 class MapFragment : Fragment() {
 
+    /******************************** VARIABLES BÁSICAS ********************************
+     ***********************************************************************************/
+
+    /**
+     * Inicializamos con lazy nuestro [MapViewModel] para crearlo con un método
+     * lifecycle apropiado.
+     */
+    private val mapViewModel: MapViewModel by lazy{
+        val application = requireNotNull(this.activity).application
+        ViewModelProvider(this, MapViewModelFactory(application))
+                .get(MapViewModel::class.java)
+    }
+
+    /******************************* FUNCIONES OVERRIDE *******************************
+     **********************************************************************************/
+
+    /**
+     * Función que se llama para instanciar la vista de interfaz de usuario (UI).
+     *
+     * @param inflater El objeto LayoutInflater se usa para inflar cualquier vista
+     * en el Fragment.
+     * @param container Si no es nulo, esta es la vista principal a la que se debe adjuntar
+     * la UI del Fragment. El Fragment no debe agregar la vista en sí, pero esto puede
+     * usarse para generar los LayoutParams de la vista.
+     * @param savedInstanceState Si no es nulo, este Fragment se está reconstruyendo a partir
+     * de un estado guardado anterior como se indica aquí.
+     *
+     * @return Devuelve la vista UI del Fragment.
+     */
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        /* Usamos la librería DataBinding para inflar el Fragmment con el layout correspondiente */
         val binding = FragmentMapBinding.inflate(inflater)
 
-        /* Obtenemos un objeto Application para pasarselo como parámetro al ViewModel y
-        *  de esa manera poder obtener el contexto correspondiente allí */
-        val application = requireNotNull(this.activity).application
-
-        /* Como necesitamos pasarle un parámetro al ViewModel por el constructor
-        *  tenemos que crear un ViewModelFactory */
-        val viewModelFactory = MapViewModelFactory(application)
-
-        /* Declaramos nuestra variable del ViewModel para poder interactuar con él */
-        val mapViewModel = ViewModelProvider(this, viewModelFactory).get(MapViewModel::class.java)
-
-        /* Recogemos la lista de cámaras que se pasa entre fragmentos */
-        val cameras = MapFragmentArgs.fromBundle(arguments!!).cameras
-
-        /* Asignamos al lifecycleOwner el fragment actual para detectar
-        *  los cambios de los objetos LiveData */
+        /* Permite a Data Binding observar LiveData con el lifecycle de su Fragment */
         binding.lifecycleOwner = this
 
-        /* Creamos e inicializamos el MapView */
-        binding.mapView.onCreate(savedInstanceState)
-        binding.mapView.onResume()
+        /* Recogemos la lista de cámaras que se pasa entre fragmentos */
+        val cameras = MapFragmentArgs.fromBundle(requireArguments()).cameras
+
+        /* Damos acceso binding a MapViewModel */
+        binding.cameras = cameras
         binding.mapView.getMapAsync {
-            mapViewModel.initialSetup(it, cameras)
+            mapViewModel.googleMap = it
         }
 
-        /* Dependiendo del chip seleccionado, se mostrará un modo u otro */
+        /* Dependiendo del chip seleccionado, se mostrará un tipo de mapa u otro */
         binding.chipGroup.setOnCheckedChangeListener { _, checkedId ->
             when(checkedId){
                 binding.hybridChip.id -> mapViewModel.changeTypeMap(GoogleMap.MAP_TYPE_HYBRID)
@@ -57,7 +72,6 @@ class MapFragment : Fragment() {
             }
         }
 
-        /* Devolvemos la vista más externa del layout asociado con el binding */
         return binding.root
     }
 
