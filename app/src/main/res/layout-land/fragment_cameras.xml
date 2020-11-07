@@ -2,18 +2,15 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
-
     <data>
         <variable
             name="viewModel"
             type="com.miguelzaragoza.upm.dam.modules.cameras.CamerasViewModel" />
     </data>
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal">
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/cameras_list"
             android:layout_width="0dp"
@@ -26,7 +23,6 @@
             app:layout_constraintTop_toTopOf="parent"
             app:listCameras="@{viewModel.cameras}"
             tools:listitem="@layout/list_view_item" />
-
         <ImageView
             android:id="@+id/camera_image"
             android:layout_width="0dp"
@@ -42,6 +38,5 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:srcCompat="@tools:sample/avatars"
             android:contentDescription="@string/current_view" />
-
     </LinearLayout>
 </layout>
