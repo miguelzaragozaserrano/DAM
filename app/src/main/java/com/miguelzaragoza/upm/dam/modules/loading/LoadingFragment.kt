@@ -33,28 +33,6 @@ class LoadingFragment : Fragment() {
      **********************************************************************************/
 
     /**
-     * Función que se llama inmediatamente después del return de onCreateView() y el
-     * se haya creado la jerarquía de vistas del Fragment. Se puede utilizar para recuperar vistas
-     * o restaurar estados.
-     *
-     * @param view Vista creada recientemente.
-     * @param savedInstanceState Si no es nulo, este Fragment se está reconstruyendo a partir
-     * de un estado guardado anterior como se indica aquí.
-     */
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        /* Observamos la variable navigateToCamerasFragment. Si toma un valor distinto de null,
-        *  es debido a que se ha completado el ProgressBar Horizontal
-        *  y por tanto navegamos a un segundo fragment */
-        loadingViewModel.navigateToCamerasFragment.observe(viewLifecycleOwner, {
-            if(it != null) findNavController()
-                    .navigate(LoadingFragmentDirections
-                            .actionSplashFragmentToCamerasFragment(loadingViewModel.list)
-                    )
-        })
-    }
-
-    /**
      * Función que se llama para instanciar la vista de interfaz de usuario (UI).
      *
      * @param inflater El objeto LayoutInflater se usa para inflar cualquier vista
@@ -80,6 +58,16 @@ class LoadingFragment : Fragment() {
         loadingViewModel.animator
                 .addUpdateListener { animation ->
                     binding.progressCircle.progress = animation.animatedValue as Int }
+
+        /* Observamos la variable navigateToCamerasFragment. Si toma un valor distinto de null,
+        *  es debido a que se ha completado el ProgressBar Horizontal
+        *  y por tanto navegamos a un segundo fragment */
+        loadingViewModel.navigateToCamerasFragment.observe(viewLifecycleOwner, {
+            if(it != null) findNavController()
+                    .navigate(LoadingFragmentDirections
+                            .actionSplashFragmentToCamerasFragment(loadingViewModel.list)
+                    )
+        })
 
         /* Observamos la variable increaseProgressBar. Si toma un valor distinto de null,
         *  es debido a que se ha detectado un tick del objeto CountDownTimer y por tanto

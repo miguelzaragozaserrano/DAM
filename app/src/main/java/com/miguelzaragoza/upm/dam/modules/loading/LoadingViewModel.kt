@@ -53,7 +53,7 @@ class LoadingViewModel(application: Application): AndroidViewModel(application) 
             = object: CountDownTimer(3000, 1){
         /**
          * Función que se carga con cada countDownInterval.
-         * @param p0: tiempo que queda para que se termine el CountDownTimer
+         * @param p0 Tiempo que queda para que se termine el CountDownTimer.
          */
         override fun onTick(p0: Long) {
             millisUntilFinished = (p0 / 100 - 100).toInt()
@@ -70,7 +70,7 @@ class LoadingViewModel(application: Application): AndroidViewModel(application) 
     /***************************** VARIABLES ENCAPSULADAS *****************************
      **********************************************************************************/
 
-    /* Variable para controlar la navegación al siguiente fragmento */
+    /* Variable para controlar la navegación al siguiente Fragment */
     private val _navigateToCamerasFragment = MutableLiveData<Boolean>()
     val navigateToCamerasFragment: LiveData<Boolean>
         get() = _navigateToCamerasFragment
