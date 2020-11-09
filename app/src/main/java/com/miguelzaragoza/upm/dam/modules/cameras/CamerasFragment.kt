@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.miguelzaragoza.upm.dam.R
 import com.miguelzaragoza.upm.dam.databinding.FragmentCamerasBinding
+import com.miguelzaragoza.upm.dam.viewmodel.CamerasViewModelFactory
 
 /******************************* VARIABLES CONSTANTES ******************************
  ***********************************************************************************/
@@ -31,7 +32,8 @@ class CamerasFragment : Fragment() {
      * lifecycle apropiado.
      */
     private val camerasViewModel: CamerasViewModel by lazy{
-        ViewModelProvider(this)
+        val application = requireNotNull(this.activity).application
+        ViewModelProvider(this, CamerasViewModelFactory(application))
                 .get(CamerasViewModel::class.java)
     }
 
@@ -40,31 +42,6 @@ class CamerasFragment : Fragment() {
 
     /******************************* FUNCIONES OVERRIDE *******************************
      **********************************************************************************/
-
-    /**
-     * Función que se llama inmediatamente después del return de onCreateView() y el
-     * se haya creado la jerarquía de vistas del Fragment. Se puede utilizar para recuperar vistas
-     * o restaurar estados.
-     *
-     * @param view Vista creada recientemente.
-     * @param savedInstanceState Si no es nulo, este Fragment se está reconstruyendo a partir
-     * de un estado guardado anterior como se indica aquí.
-     */
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        /* Observamos la variable navigateToSelectedCamera. Si toma un valor distinto de null,
-        *  es debido a que se ha pulsado una imagen y por tanto navegamos a un segundo fragment */
-        camerasViewModel.navigateToSelectedCamera.observe(viewLifecycleOwner, {
-            if (it != null && camerasViewModel.camera.value != null) {
-                saveQuery()
-                camerasViewModel.setSharedList()
-                findNavController()
-                        .navigate(CamerasFragmentDirections
-                                .actionCamerasFragmentToMapsFragment(camerasViewModel.sharedList)
-                        )
-            }
-        })
-    }
 
     /**
      * Función que se llama para instanciar la vista de interfaz de usuario (UI).
@@ -95,12 +72,23 @@ class CamerasFragment : Fragment() {
         /* Indicamos que va a existir un menú de opciones */
         setHasOptionsMenu(true)
 
+        /* Observamos la variable navigateToSelectedCamera. Si toma un valor distinto de null,
+        *  es debido a que se ha pulsado una imagen y por tanto navegamos a un tercer fragment */
+        camerasViewModel.navigateToSelectedCamera.observe(viewLifecycleOwner, {
+            if (it != null) {
+                saveQuery()
+                camerasViewModel.setSharedList()
+                findNavController()
+                        .navigate(CamerasFragmentDirections
+                                .actionCamerasFragmentToMapsFragment(camerasViewModel.sharedList)
+                        )
+            }
+        })
+
         /* Recogemos la lista de cámaras que se pasa entre fragmentos solamente si la lista
-        *  de CamerasFragment está vacía */
+        *  del ViewModel está vacía (primera vez que se accede al Fragment) */
         if(camerasViewModel.list.isEmpty()){
-            val cameras = CamerasFragmentArgs.fromBundle(requireArguments()).cameras
-            camerasViewModel.list.addAll(cameras)
-            camerasViewModel.sharedList.addAll(cameras)
+            camerasViewModel.list.addAll(CamerasFragmentArgs.fromBundle(requireArguments()).cameras)
         }
 
         return binding.root
@@ -116,23 +104,9 @@ class CamerasFragment : Fragment() {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.menu, menu)
 
-        /* Analizamos el estado en el que estábamos cuando regresamos al Fragment */
-        when(camerasViewModel.order){
-            ASCENDING_ORDER -> {
-                /* Mostramos la lista */
-                camerasViewModel.adapter.filterDescending()
-                /* Cambiamos el icono */
-                menu.findItem(R.id.order_icon).icon = ContextCompat
-                    .getDrawable(requireContext(), R.drawable.ic_ascending_order)
-            }
-            DESCENDING_ORDER -> {
-                /* Mostramos la lista */
-                camerasViewModel.adapter.filterAscending()
-                /* Cambiamos el icono */
-                menu.findItem(R.id.order_icon).icon = ContextCompat
-                    .getDrawable(requireContext(), R.drawable.ic_descending_order)
-            }
-        }
+        /* Asignamos los valores correspondientes */
+        menu.findItem(R.id.order_icon).icon = camerasViewModel.iconOrder
+        menu.findItem(R.id.action_all).isChecked = camerasViewModel.showAllCameras
 
         /* Inicialiazamos nuestro SearchView */
         val iconSearch = menu.findItem(R.id.search_icon)
@@ -143,8 +117,8 @@ class CamerasFragment : Fragment() {
         searchView.maxWidth = Integer.MAX_VALUE
 
         /* Declaramos un setOnActionExpandListener para ocultar los iconos y así poder
-        *  expandir el SearchView. Además guardamos el valor focus para saber si cuando
-        *  cambiamos de Fragment, teníamos el SearchView activo o no */
+        *  expandir el SearchView cuando escribimos. Además, guardamos el valor focus
+        *  para saber si cuando cambiamos de Fragment, teníamos el SearchView activo o no */
         iconSearch.setOnActionExpandListener(
                 object: MenuItem.OnActionExpandListener{
             override fun onMenuItemActionExpand(p0: MenuItem?): Boolean {
@@ -168,7 +142,8 @@ class CamerasFragment : Fragment() {
                         return false
                     }
                     override fun onQueryTextChange(query: String?): Boolean {
-                        camerasViewModel.adapter.filterByName(query)
+                        if(camerasViewModel.querySearched == "")
+                            camerasViewModel.adapter.filterByName(query)
                         return true
                     }
                 })
@@ -180,10 +155,9 @@ class CamerasFragment : Fragment() {
             searchView.isIconified = false
             searchView.clearFocus()
             searchView.setQuery(camerasViewModel.querySearched, false)
+            camerasViewModel.querySearched = ""
         }
 
-        /* Comprobamos si la opción de mostrar todas las cámaras estaba seleccionada o no */
-        if(camerasViewModel.showAllCameras) menu.findItem(R.id.action_all).isChecked = true
     }
 
     /**
@@ -204,8 +178,8 @@ class CamerasFragment : Fragment() {
                         camerasViewModel.adapter.filterAscending()
                         /* Cambiamos el icono */
                         item.icon = ContextCompat
-                                .getDrawable(requireContext(), R.drawable.ic_descending_order)
-                        /* Cambiamos de estado */
+                                .getDrawable(requireContext(), R.drawable.ic_descending_order)!!
+                        /* Guardamos los estados */
                         camerasViewModel.order = DESCENDING_ORDER
                     }
                     DESCENDING_ORDER -> {
@@ -213,15 +187,17 @@ class CamerasFragment : Fragment() {
                         camerasViewModel.adapter.filterDescending()
                         /* Cambiamos el icono */
                         item.icon = ContextCompat
-                                .getDrawable(requireContext(), R.drawable.ic_ascending_order)
-                        /* Cambiamos de estado */
+                                .getDrawable(requireContext(), R.drawable.ic_ascending_order)!!
+                        /* Guardamos los estados */
                         camerasViewModel.order = ASCENDING_ORDER
                     }
                 }
+                /* Guardamos el nuevo valor del iconOrder */
+                camerasViewModel.iconOrder = item.icon
                 return true
             }
             R.id.action_reset -> {
-                /* Si pulsamos la opción de resetear la lista, volvemos al Fragment anterior */
+                /* Si pulsamos la opción de resetear la lista, volvemos al LoadingFragment */
                 findNavController()
                         .navigate(CamerasFragmentDirections
                                 .actionCamerasFragmentToSplashFragment()
@@ -230,9 +206,8 @@ class CamerasFragment : Fragment() {
             }
             R.id.action_all -> {
                 /* Si pulsamos la opción de mostrar todas las cámaras,
-                *  analizamos si está clickeado o no, y actuamos en función a eso */
-                if(camerasViewModel.showAllCameras) camerasViewModel.setMode(false)
-                else camerasViewModel.setMode(true)
+                *  actualizamos el valor */
+                camerasViewModel.showAllCameras = !camerasViewModel.showAllCameras
                 item.isChecked = !item.isChecked
                 return true
             }

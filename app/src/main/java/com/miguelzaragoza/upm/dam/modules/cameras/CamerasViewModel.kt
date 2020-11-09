@@ -1,10 +1,15 @@
 package com.miguelzaragoza.upm.dam.modules.cameras
 
-import android.view.MenuItem
-import androidx.appcompat.widget.SearchView
+import android.app.Application
+import android.content.Context
+import android.graphics.drawable.Drawable
+import android.net.ConnectivityManager
+import android.widget.Toast
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import com.miguelzaragoza.upm.dam.R
 import com.miguelzaragoza.upm.dam.model.Camera
 import com.miguelzaragoza.upm.dam.model.Cameras
 import com.miguelzaragoza.upm.dam.modules.common.CamerasAdapter
@@ -18,12 +23,14 @@ import kotlinx.coroutines.withContext
  * ViewModel que realizará las funciones lógicas y almacenará los datos del
  * CamerasFragment.
  */
-class CamerasViewModel: ViewModel() {
+class CamerasViewModel(application: Application): AndroidViewModel(application) {
 
     /******************************** VARIABLES BÁSICAS ********************************
      ***********************************************************************************/
 
-    /* Variable privada para la ejecución de hilos en segundo plano */
+    /* Variables privadas para definir el contexto cuando sea necesario,
+    *  y para la ejecución de hilos en segundo plano */
+    private val context = application.applicationContext
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
     /* Variable pública que crea el objeto CameraAdaper
@@ -32,10 +39,10 @@ class CamerasViewModel: ViewModel() {
         selectedCamera(camera)
     })
 
-    /* Variables para guardar la lista que se comparte en el mapa
-    *  y la lista que se muestra en el propio fragmento */
-    var sharedList = Cameras()
+    /* Variables para guardar la lista que se muestra en el propio fragmento
+    *  y la lista que se comparte en el mapa */
     var list = Cameras()
+    var sharedList = Cameras()
 
     /* Variable de la última cámara seleccionada */
     private var lastCamera: Camera? = null
@@ -45,7 +52,8 @@ class CamerasViewModel: ViewModel() {
     var focus: Boolean = false
     var querySearched: String = ""
     var showAllCameras: Boolean = false
-
+    var iconOrder: Drawable? = ContextCompat
+            .getDrawable(context, R.drawable.ic_ascending_order)
 
     /***************************** VARIABLES ENCAPSULADAS *****************************
      **********************************************************************************/
@@ -121,8 +129,25 @@ class CamerasViewModel: ViewModel() {
      * Función que se llama desde el XML para activar el proceso de navegación al mapa.
      */
     fun showMap(){
-        _navigateToSelectedCamera.value = true
-        showMapComplete()
+        if(camera.value != null) hasConnection()
+    }
+
+    /**
+     * Función que comprueba que haya conexión en el dispositivo antes de cargar el mapa.
+     */
+    private fun hasConnection(){
+        val connectivityManager =
+                getApplication<Application>()
+                        .getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val capabilities =
+                connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+        if (capabilities != null) {
+            _navigateToSelectedCamera.value = true
+            showMapComplete()
+        }else Toast
+                .makeText(context, "Por favor, compruebe su conexión", Toast.LENGTH_LONG)
+                .show()
+
     }
 
     /**
@@ -161,17 +186,6 @@ class CamerasViewModel: ViewModel() {
     fun setSharedList(){
         if(showAllCameras) getMultipleCameras()
         else getSingleCamera()
-    }
-
-    /**
-     * Función que actualiza el valor de showAllCameras, para saber si queremos mostrar una
-     * cámara o todas.
-     *
-     * @param value Variable que determina si el checkable de la opción "Todas" está
-     * activado o no.
-     */
-    fun setMode(value: Boolean){
-        showAllCameras = value
     }
 
 }
