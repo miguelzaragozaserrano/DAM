@@ -11,6 +11,7 @@
     <color name="white_50">#fff</color>
     <color name="black_800">#121212</color>
     <color name="black_900">#000000</color>
+    <color name="indigo_50">#e8eaf6</color>
     <color name="indigo_100">#c5cae9</color>
     <color name="indigo_900">#1a237e</color>
     <color name="indigo_900_dark">#000051</color>
