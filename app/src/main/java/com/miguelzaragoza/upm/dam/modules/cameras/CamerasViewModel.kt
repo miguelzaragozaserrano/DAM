@@ -1,9 +1,8 @@
 package com.miguelzaragoza.upm.dam.modules.cameras
 
 import android.app.Application
-import android.content.Context
+
 import android.graphics.drawable.Drawable
-import android.net.ConnectivityManager
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
@@ -14,6 +13,7 @@ import com.miguelzaragoza.upm.dam.model.Camera
 import com.miguelzaragoza.upm.dam.model.Cameras
 import com.miguelzaragoza.upm.dam.modules.common.CamerasAdapter
 import com.miguelzaragoza.upm.dam.modules.common.OnClickListener
+import com.miguelzaragoza.upm.dam.modules.utils.hasConnection
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -129,25 +129,14 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
      * Función que se llama desde el XML para activar el proceso de navegación al mapa.
      */
     fun showMap(){
-        if(camera.value != null) hasConnection()
-    }
-
-    /**
-     * Función que comprueba que haya conexión en el dispositivo antes de cargar el mapa.
-     */
-    private fun hasConnection(){
-        val connectivityManager =
-                getApplication<Application>()
-                        .getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val capabilities =
-                connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
-        if (capabilities != null) {
-            _navigateToSelectedCamera.value = true
-            showMapComplete()
-        }else Toast
-                .makeText(context, "Por favor, compruebe su conexión", Toast.LENGTH_LONG)
-                .show()
-
+        if(camera.value != null)
+            if(hasConnection(getApplication<Application>())){
+                _navigateToSelectedCamera.value = true
+                showMapComplete()
+            }else
+                Toast
+                    .makeText(context, context.getString(R.string.check_connection), Toast.LENGTH_LONG)
+                    .show()
     }
 
     /**
