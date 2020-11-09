@@ -1,7 +1,24 @@
 package com.miguelzaragoza.upm.dam.modules.utils
 
+import android.app.Application
+import android.content.Context
+import android.net.ConnectivityManager
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolylineOptions
+
+/**
+ * Función que comprueba que haya conexión en el dispositivo antes de cargar el mapa.
+ */
+fun hasConnection(application: Application): Boolean{
+    var connection = false
+    val connectivityManager =
+                    application
+                            .getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    val capabilities =
+            connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+    if(capabilities != null) connection = true
+    return connection
+}
 
 /**
  * Función que descodifica las coordenadas del Polyline.
