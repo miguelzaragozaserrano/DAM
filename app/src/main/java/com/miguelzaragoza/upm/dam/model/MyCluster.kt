@@ -4,7 +4,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.clustering.ClusterItem
 
 /**
- * Clase del objeto MyCluster
+ * Clase del objeto MyCluster.
  *
  * @param position Posición que va a ocupar el marcador (cámara) en el mapa.
  * @param title Título que le asignamos al marcador (cámara) en el mapa.
