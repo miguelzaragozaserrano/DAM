@@ -7,14 +7,18 @@
     <string name="title_normal">Mapa</string>
     <string name="title_hybrid">Híbrido</string>
     <string name="title_activity_a">Map</string>
-    <string name="action_asc">Ordenar A-Z</string>
-    <string name="action_desc">Ordenar Z-A</string>
-    <string name="action_multiple">Todas</string>
+    <string name="action_multiple">Mostrar todas</string>
     <string name="action_single">Actual</string>
-    <string name="current_view">Todas</string>
-    <string name="search">Search</string>
+    <string name="search_button">Buscar</string>
     <string name="search_query_hint">Escribe el nombre de la cámara…</string>
     <string name="order_button">Ordenar</string>
     <string name="action_reset">Resetear lista</string>
     <string name="loading_cameras">…cargando cámaras…</string>
+    <string name="check_connection">Por favor, compruebe su conexión</string>
+    <string name="cancel_button">Cancelar</string>
+    <string name="alert_cluster_title">¿Quieres activar el modo Cluster?</string>
+    <string name="alert_cluster_message">Esta opción te permite agrupar un conjunto de marcadores cercanos representados como una agrupación, para facilitar la visualización de un mapa con muchos marcadores.</string>
+    <string name="fav_button">Favoritas</string>
+    <string name="alert_reset_title">¿Deseas resetear la lista de favoritos?</string>
+    <string name="alert_reset_message">Estás a punto de vaciar toda tu lista de favoritos. Esta operación no tiene vuelta atrás. ¿Estás seguro que quieres llevarla acabo?</string>
 </resources>
