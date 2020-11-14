@@ -2,14 +2,21 @@ package com.miguelzaragoza.upm.dam.modules.cameras
 
 import android.os.Bundle
 import android.view.*
+import android.widget.ImageView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.miguelzaragoza.upm.dam.R
+import com.miguelzaragoza.upm.dam.binding.bindImage
+import com.miguelzaragoza.upm.dam.database.CameraDatabase
 import com.miguelzaragoza.upm.dam.databinding.FragmentCamerasBinding
 import com.miguelzaragoza.upm.dam.viewmodel.CamerasViewModelFactory
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 /******************************* VARIABLES CONSTANTES ******************************
  ***********************************************************************************/
@@ -18,9 +25,12 @@ const val NOT_ORDER = 0
 const val ASCENDING_ORDER = 1
 const val DESCENDING_ORDER = 2
 
+const val NORMAL_MODE = 0
+const val FAV_MODE = 1
+
 /**
  * Fragment que muestra la primera pantalla
- * donde aparece la lista de cámaras y la imagen que capturan
+ * donde aparece la lista de cámaras y la imagen que capturan.
  */
 class CamerasFragment : Fragment() {
 
@@ -33,12 +43,16 @@ class CamerasFragment : Fragment() {
      */
     private val camerasViewModel: CamerasViewModel by lazy{
         val application = requireNotNull(this.activity).application
-        ViewModelProvider(this, CamerasViewModelFactory(application))
+        val database = CameraDatabase.getInstance(application).cameraDao
+        ViewModelProvider(this, CamerasViewModelFactory(application, database))
                 .get(CamerasViewModel::class.java)
     }
 
-    /* Variable privada para almacenar el SearchView */
+    /* Variables privadas */
     private lateinit var searchView: SearchView
+    private lateinit var iconOrder: MenuItem
+    private lateinit var ivCamera: ImageView
+
 
     /******************************* FUNCIONES OVERRIDE *******************************
      **********************************************************************************/
@@ -60,17 +74,20 @@ class CamerasFragment : Fragment() {
             inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
+        /* Indicamos que va a existir un menú de opciones */
+        setHasOptionsMenu(true)
+
        val binding = FragmentCamerasBinding.inflate(inflater)
 
         /* Permite a Data Binding observar LiveData con el lifecycle de su Fragment */
         binding.lifecycleOwner = this
 
-        /* Damos acceso binding a CamerasViewModel */
+        /* Damos acceso binding a CamerasViewModel y al adapter */
         binding.viewModel = camerasViewModel
         binding.camerasList.adapter = camerasViewModel.adapter
 
-        /* Indicamos que va a existir un menú de opciones */
-        setHasOptionsMenu(true)
+        /* Guardamos el ImageView como variable */
+        ivCamera = binding.cameraImage
 
         /* Observamos la variable navigateToSelectedCamera. Si toma un valor distinto de null,
         *  es debido a que se ha pulsado una imagen y por tanto navegamos a un tercer fragment */
@@ -80,7 +97,7 @@ class CamerasFragment : Fragment() {
                 camerasViewModel.setSharedList()
                 findNavController()
                         .navigate(CamerasFragmentDirections
-                                .actionCamerasFragmentToMapsFragment(camerasViewModel.sharedList)
+                                .actionCamerasFragmentToMapsFragment(camerasViewModel.sharedList, camerasViewModel.cluster)
                         )
             }
         })
@@ -105,7 +122,9 @@ class CamerasFragment : Fragment() {
         inflater.inflate(R.menu.menu, menu)
 
         /* Asignamos los valores correspondientes */
-        menu.findItem(R.id.order_icon).icon = camerasViewModel.iconOrder
+        iconOrder = menu.findItem(R.id.order_icon)
+        iconOrder.icon = camerasViewModel.iconOrder!!
+        menu.findItem(R.id.fav_icon).icon = camerasViewModel.iconFav
         menu.findItem(R.id.action_all).isChecked = camerasViewModel.showAllCameras
 
         /* Inicialiazamos nuestro SearchView */
@@ -178,8 +197,8 @@ class CamerasFragment : Fragment() {
                         camerasViewModel.adapter.filterAscending()
                         /* Cambiamos el icono */
                         item.icon = ContextCompat
-                                .getDrawable(requireContext(), R.drawable.ic_descending_order)!!
-                        /* Guardamos los estados */
+                            .getDrawable(requireContext(), R.drawable.ic_descending_order)
+                        /* Guardamos el estado */
                         camerasViewModel.order = DESCENDING_ORDER
                     }
                     DESCENDING_ORDER -> {
@@ -187,28 +206,94 @@ class CamerasFragment : Fragment() {
                         camerasViewModel.adapter.filterDescending()
                         /* Cambiamos el icono */
                         item.icon = ContextCompat
-                                .getDrawable(requireContext(), R.drawable.ic_ascending_order)!!
-                        /* Guardamos los estados */
+                            .getDrawable(requireContext(), R.drawable.ic_ascending_order)
+                        /* Guardamos el estado */
                         camerasViewModel.order = ASCENDING_ORDER
                     }
                 }
-                /* Guardamos el nuevo valor del iconOrder */
+                /* Guardamos el valor del icono orden */
                 camerasViewModel.iconOrder = item.icon
                 return true
             }
+            R.id.fav_icon -> {
+                /* Si pulsamos el icono de favorito, analizamos el estado en el que se encuentra */
+                when(camerasViewModel.mode){
+                    NORMAL_MODE -> {
+                        /* Cambiamos el icono */
+                        item.icon = ContextCompat
+                                .getDrawable(requireContext(), R.drawable.ic_favorite_on)
+                        /* Desactivamos el botón de ordenar */
+                        iconOrder.icon = ContextCompat
+                                .getDrawable(requireContext(), R.drawable.ic_order_disabled)
+                        iconOrder.isEnabled = false
+                        /* Cambiamos el modo del adaptador */
+                        camerasViewModel.adapter.setMode(FAV_MODE)
+                        /* Mostramos la lista de favoritos */
+                        camerasViewModel.adapter.showFavoriteList()
+                        /* Analizamos si tenemos una cámara seleccionada */
+                        if(camerasViewModel.camera.value != null)
+                            /* Y en caso de que al cambiar no sea favorita */
+                            if(!camerasViewModel.camera.value!!.fav){
+                                /* Quitamos la imagen */
+                                ivCamera.setImageDrawable(null)
+                            }
+                        /* Guardamos el estado */
+                        camerasViewModel.mode = FAV_MODE
+                    }
+                    FAV_MODE -> {
+                        /* Cambiamos el icono */
+                        item.icon = ContextCompat
+                                .getDrawable(requireContext(), R.drawable.ic_favorite_off)
+                        /* Actiamos y recuperamos el botón de ordenar */
+                        iconOrder.icon = camerasViewModel.iconOrder
+                        iconOrder.isEnabled = true
+                        /* Cambiamos el modo del adaptador */
+                        camerasViewModel.adapter.setMode(NORMAL_MODE)
+                        /* Mostramos la lista normal */
+                        camerasViewModel.adapter.showNormalList()
+                        /* En caso de que no haya imagen al volver del modo favoritos,
+                        *  mostramos la seleccionada (si hubiera) */
+                        if(ivCamera.drawable == null) {
+                            bindImage(ivCamera, camerasViewModel.camera.value?.url)
+                        }
+                        /* Guardamos el estado */
+                        camerasViewModel.mode = NORMAL_MODE
+                    }
+                }
+                /* Guardamos el valor del icono favoritos */
+                camerasViewModel.iconFav = item.icon
+                return true
+            }
             R.id.action_reset -> {
-                /* Si pulsamos la opción de resetear la lista, volvemos al LoadingFragment */
-                findNavController()
-                        .navigate(CamerasFragmentDirections
+                /* Si pulsamos la opción de resetear la lista,
+                *  analizamos el estado en el que se encuentra */
+                when(camerasViewModel.mode){
+                    NORMAL_MODE -> {
+                        /* Volvemos al LoadingFragment */
+                        findNavController()
+                            .navigate(CamerasFragmentDirections
                                 .actionCamerasFragmentToSplashFragment()
-                        )
+                            )
+                        return true
+                    }
+                    FAV_MODE -> {
+                        /* Mostramos el diálogo para advertir del reseteo en caso de que haya
+                        *  cámaras favoritas */
+                        GlobalScope.launch(Dispatchers.Main){
+                            if(camerasViewModel.database.getSize() > 0)
+                                showDialogReset()
+                        }
+                        return true
+                    }
+                }
                 return true
             }
             R.id.action_all -> {
                 /* Si pulsamos la opción de mostrar todas las cámaras,
-                *  actualizamos el valor */
+                *  actualizamos el valor y, en caso de marcarlo, preguntamos si queremos Cluster */
                 camerasViewModel.showAllCameras = !camerasViewModel.showAllCameras
                 item.isChecked = !item.isChecked
+                if(item.isChecked) showDialogCluster()
                 return true
             }
             else -> return super.onOptionsItemSelected(item)
@@ -238,6 +323,45 @@ class CamerasFragment : Fragment() {
             val item = menu.getItem(i)
             if (item !== searchItem) item.isVisible = visible
         }
+    }
+
+    /**
+     * Función que nos muestra un AlertDialog preguntando si queremos un Cluster en el MapView.
+     */
+    private fun showDialogCluster(){
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle(getString(R.string.alert_cluster_title))
+            .setMessage(getString(R.string.alert_cluster_message))
+            .setPositiveButton(getString(android.R.string.ok)
+            ) { _, _ ->
+                camerasViewModel.cluster = true
+            }
+            .setNegativeButton(getString(R.string.cancel_button)
+            ) { _, _ ->
+                camerasViewModel.cluster = false
+            }
+        builder.create()
+        builder.show()
+    }
+
+    /**
+     * Función que nos muestra un AlertDialog preguntando si estamos seguros de querer resetear
+     * la lista de favoritos.
+     */
+    private fun showDialogReset(){
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle(getString(R.string.alert_reset_title))
+            .setMessage(getString(R.string.alert_reset_message))
+            .setPositiveButton(getString((android.R.string.ok))
+            ) { _, _ ->
+                camerasViewModel.reset()
+                ivCamera.setImageDrawable(null)
+            }
+            .setNegativeButton(getString(R.string.cancel_button)
+            ) { _, _ ->
+            }
+        builder.create()
+        builder.show()
     }
 
 }
