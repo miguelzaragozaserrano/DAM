@@ -103,7 +103,7 @@ fun bindMapView(mapView: MapView, cameras: Cameras?, cluster: Boolean){
  * Función que configura el Cluster.
  *
  * @param map Mapa al que añadiremos el Cluster.
- * @param context Contexto donde añadimos el Cluster.
+ * @param context Contexto.
  * @param cameras Lista de cámaras.
  */
 fun setUpCluster(map: GoogleMap, context: Context, cameras: Cameras){
