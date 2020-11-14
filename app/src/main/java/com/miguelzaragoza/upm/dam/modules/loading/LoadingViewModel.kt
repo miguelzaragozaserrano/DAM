@@ -7,7 +7,7 @@ import android.util.Xml
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.google.android.gms.maps.model.LatLng
+import com.miguelzaragoza.upm.dam.database.CameraDao
 import com.miguelzaragoza.upm.dam.model.Camera
 import com.miguelzaragoza.upm.dam.model.Cameras
 import kotlinx.coroutines.CoroutineScope
@@ -22,9 +22,11 @@ import java.io.InputStream
 /**
  * ViewModel que realizará las funciones lógicas y almacenará los datos del
  * LoadingFragment.
- * @param application: variable que nos permitirá obtener el contexto de la aplicación
+ *
+ * @param application Variable que nos permitirá obtener el contexto de la aplicación.
+ * @param database Base de datos Room.
  */
-class LoadingViewModel(application: Application): AndroidViewModel(application) {
+class LoadingViewModel(application: Application, val database: CameraDao): AndroidViewModel(application) {
 
     /******************************** VARIABLES BÁSICAS ********************************
      ***********************************************************************************/
@@ -192,13 +194,22 @@ class LoadingViewModel(application: Application): AndroidViewModel(application) 
                             }
                             /* Como las coordenadas son el último valor que se obtiene
                             *  de cada cámara, creamos un objeto Camera y lo añadimos a la lista
-                            *  de cámaras */
+                            *  de cámaras. */
+                            /* Para ello, comprobamos si existe la cámara en la base de datos
+                            *  y en caso de que exista, en la lista tendremos que marcar
+                            *  el atributo fav como true */
+                            val camera = database.get(list.size + 1)
+                            var fav = false
+                            if(camera != null) fav = camera.fav
                             list.add(
                                     Camera(list.size + 1,
                                             name,
                                             url,
-                                            LatLng(latitude, longitude),
-                                            false)
+                                            latitude,
+                                            longitude,
+                                            selected = false,
+                                            fav = fav
+                                    )
                             )
                         }
                     }
