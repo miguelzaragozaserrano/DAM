@@ -40,5 +40,9 @@
             android:name="cameras"
             app:argType="com.miguelzaragoza.upm.dam.model.Cameras"
             />
+        <argument
+            android:name="cluster"
+            app:argType="boolean"
+            />
     </fragment>
 </navigation>
