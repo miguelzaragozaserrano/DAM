@@ -7,12 +7,13 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import com.miguelzaragoza.upm.dam.database.CameraDatabase
 import com.miguelzaragoza.upm.dam.databinding.FragmentLoadingBinding
 import com.miguelzaragoza.upm.dam.viewmodel.LoadingViewModelFactory
 
 /**
 * Fragment que muestra la primera pantalla
-* donde aparece un mensaje de "cargando"
+* donde aparece un mensaje de "cargando".
 */
 class LoadingFragment : Fragment() {
 
@@ -25,7 +26,8 @@ class LoadingFragment : Fragment() {
      */
     private val loadingViewModel: LoadingViewModel by lazy{
         val application = requireNotNull(this.activity).application
-        ViewModelProvider(this, LoadingViewModelFactory(application))
+        val database = CameraDatabase.getInstance(application).cameraDao
+        ViewModelProvider(this, LoadingViewModelFactory(application, database))
                 .get(LoadingViewModel::class.java)
     }
 
