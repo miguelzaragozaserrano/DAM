@@ -5,13 +5,18 @@
     <item
         android:id="@+id/search_icon"
         android:icon="@drawable/ic_search_white_24dp"
-        android:title="@string/search"
+        android:title="@string/search_button"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         app:showAsAction="always|collapseActionView" />
     <item
         android:id="@+id/order_icon"
-        android:icon="@drawable/ic_ascending_order"
         android:title="@string/order_button"
+        app:showAsAction="always|collapseActionView"
+        tools:ignore="AlwaysShowAction" />
+    <item
+        android:id="@+id/fav_icon"
+        android:icon="@drawable/ic_favorite_off"
+        android:title="@string/fav_button"
         app:showAsAction="always|collapseActionView"
         tools:ignore="AlwaysShowAction" />
     <item
