@@ -1,5 +1,6 @@
 package com.miguelzaragoza.upm.dam.binding
 
+import android.content.Context
 import android.os.Bundle
 import android.widget.ImageView
 import androidx.core.net.toUri
@@ -12,27 +13,20 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.maps.android.clustering.ClusterManager
 import com.miguelzaragoza.upm.dam.R
 import com.miguelzaragoza.upm.dam.model.Camera
 import com.miguelzaragoza.upm.dam.model.Cameras
+import com.miguelzaragoza.upm.dam.model.MyCluster
 import com.miguelzaragoza.upm.dam.modules.common.CamerasAdapter
-
-/***************************** CLASE BINDING ADAPTERS *****************************
- Permite personalizar la lógica con la que un método set ejecuta un atributo del XML
- **********************************************************************************/
 
 /**
  * Función que asigna la imagen de la cámara que se clickea al ImageView.
- * Para ello, le pasamos el View correspondiente a la función y el posible enlace de la imagen.
- * 1.- Comprobamos si el String no está vacío con el metodo "let".
- * 2.- Convertimos el String en un Uri.
- * 3.- Usamos la librería Glide para obtener la imagen de internet y cargarla en el ImageView.
- *     Durante la carga de la imagen añadimos una animación de carga y, en caso de que no se consiga
- *     cargar, mostramos una imagen como si el fichero estuviera roto.
  *
- * @param imgView Vista del ImageView
- * @param imgUrl Enlace con la foto de la cámara que queremos mostrar
+ * @param imgView Vista del ImageView.
+ * @param imgUrl Enlace a la cámara que nos devuelve la foto que queremos mostrar.
  */
 @BindingAdapter("imageUrl")
 fun bindImage(imgView: ImageView, imgUrl: String?){
@@ -42,7 +36,7 @@ fun bindImage(imgView: ImageView, imgUrl: String?){
                 .load(imgUri)
                 .apply(RequestOptions()
                         .placeholder(R.drawable.loading_animation)
-                        .error(R.drawable.ic_broken_image))
+                        .error(R.drawable.broken_image))
                 .skipMemoryCache(true)
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .into(imgView)
@@ -51,12 +45,9 @@ fun bindImage(imgView: ImageView, imgUrl: String?){
 
 /**
  * Función que asigna la lista de cámaras al RecyclerView.
- * Para ello, le pasamos el View correspondiente a la función y la posible lista de objetos Cámara.
- * 1.- Asignamos el adaptador CamerasAdapter a una variable.
- * 2.- Le pasamos la lista que queremos que muestre.
  *
- * @param recyclerView Vista del RecyclerView
- * @param cameras Lista de cámaras
+ * @param recyclerView Vista del RecyclerView.
+ * @param cameras Lista de cámaras.
  */
 @BindingAdapter("listCameras")
 fun bindRecyclerView(recyclerView: RecyclerView, cameras: List<Camera>?){
@@ -66,32 +57,79 @@ fun bindRecyclerView(recyclerView: RecyclerView, cameras: List<Camera>?){
 
 /**
  * Función que inicia el Mapa.
- * Para ello le pasamos el View correspondiente a la función y la posible lista de objetos Cámara.
- * 1.- Creamos el MapView y le asignamos el tipo normal por defecto.
- * 2.- Centramos la cámara en la seleccionada.
- * 3.- Añadimos todos los marcadores al mapa.
  *
- * @param mapView Vista del MapView
- * @param cameras Lista de cámaras
+ * @param mapView Vista del MapView.
+ * @param cameras Lista de cámaras.
+ * @param cluster Variable que determina si queremos el modo Cluster o no.
  */
-@BindingAdapter("initMap")
-fun bindMapView(mapView: MapView, cameras: Cameras?){
+@BindingAdapter(value = ["bind:cameras", "bind:cluster"])
+fun bindMapView(mapView: MapView, cameras: Cameras?, cluster: Boolean){
+    /* Creamos el mapa */
     mapView.onCreate(Bundle())
+
     mapView.getMapAsync {
         mapView.onResume()
+        /* Le asignamos por defecto el tipo normal */
         it.mapType = GoogleMap.MAP_TYPE_NORMAL
+        /* Recorremos la lista de cámaras para hacer zoom en la seleccionada */
         for(camera in cameras!!){
-            if(camera.status){
-                val cameraPosition = CameraPosition.Builder().target(camera.coordinates).zoom(12F).build()
+            if(camera.selected){
+                val cameraPosition =
+                        CameraPosition
+                                .Builder()
+                                .target(LatLng(camera.latitude, camera.longitude))
+                                .zoom(12F).build()
                 it.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
             }
         }
-        cameras.map { camera ->
-            it.addMarker(
-                    MarkerOptions()
-                            .position(camera.coordinates)
-                            .title(camera.name)
-            )
+
+        /* Analizamos si queremos Cluster o no */
+        if(cluster)
+            setUpCluster(it, mapView.context, cameras)
+        else{
+            /* En caso de que no, añadimos las cámaras al mapa */
+            cameras.map { camera ->
+                it.addMarker(
+                        MarkerOptions()
+                                .position(LatLng(camera.latitude, camera.longitude))
+                                .title(camera.name)
+                )
+            }
         }
+    }
+}
+
+/**
+ * Función que configura el Cluster.
+ *
+ * @param map Mapa al que añadiremos el Cluster.
+ * @param context Contexto donde añadimos el Cluster.
+ * @param cameras Lista de cámaras.
+ */
+fun setUpCluster(map: GoogleMap, context: Context, cameras: Cameras){
+
+    /* Iniciamos el gestor con el contexto y el mapa  */
+    val clusterManager: ClusterManager<MyCluster> = ClusterManager(context, map)
+
+    /* Declaramos los listeners implementados por el Cluster */
+    map.setOnCameraIdleListener(clusterManager)
+    map.setOnMarkerClickListener(clusterManager)
+
+    /* Añadimos las cámaras al gestor */
+    addItems(clusterManager, cameras)
+}
+
+/**
+ * Función que recorre la lista de cámaras para ir añadiéndolos al gestor.
+ */
+fun addItems(clusterManager: ClusterManager<MyCluster>, cameras: Cameras) {
+    for (camera in cameras) {
+        /* Creamos un objeto MyCluster para añadirlo al gestor */
+        val item =
+            MyCluster(LatLng(camera.latitude, camera.longitude),
+                    "Title ${camera.name}",
+                    "Snippet ${camera.id}"
+            )
+        clusterManager.addItem(item)
     }
 }
