@@ -1,7 +1,6 @@
-package com.miguelzaragoza.upm.dam.modules.cameras
+package com.miguelzaragoza.upm.dam.modules.ui.cameras
 
 import android.app.Application
-
 import android.graphics.drawable.Drawable
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -9,10 +8,11 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.miguelzaragoza.upm.dam.R
+import com.miguelzaragoza.upm.dam.database.CameraDao
 import com.miguelzaragoza.upm.dam.model.Camera
 import com.miguelzaragoza.upm.dam.model.Cameras
-import com.miguelzaragoza.upm.dam.modules.common.CamerasAdapter
-import com.miguelzaragoza.upm.dam.modules.common.OnClickListener
+import com.miguelzaragoza.upm.dam.modules.ui.common.CamerasAdapter
+import com.miguelzaragoza.upm.dam.modules.ui.common.OnClickListener
 import com.miguelzaragoza.upm.dam.modules.utils.hasConnection
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,8 +22,11 @@ import kotlinx.coroutines.withContext
 /**
  * ViewModel que realizará las funciones lógicas y almacenará los datos del
  * CamerasFragment.
+ *
+ * @param application Variable que nos permitirá obtener el contexto de la aplicación.
+ * @param database Base de datos Room.
  */
-class CamerasViewModel(application: Application): AndroidViewModel(application) {
+class CamerasViewModel(application: Application, val database: CameraDao): AndroidViewModel(application) {
 
     /******************************** VARIABLES BÁSICAS ********************************
      ***********************************************************************************/
@@ -33,10 +36,11 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
     private val context = application.applicationContext
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
-    /* Variable pública que crea el objeto CameraAdaper
-    *  y guarda el valor de la cámara seleccioanda */
-    var adapter = CamerasAdapter(OnClickListener { camera ->
+    /* Variable pública que crea el objeto CameraAdaper */
+    var adapter = CamerasAdapter(database, OnClickListener { camera ->
         selectedCamera(camera)
+    }, OnClickListener { camera ->
+        setFavorite(camera)
     })
 
     /* Variables para guardar la lista que se muestra en el propio fragmento
@@ -48,10 +52,14 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
     private var lastCamera: Camera? = null
 
     /* Variables que nos ayudan con las opciones del menú */
+    var mode: Int = NORMAL_MODE
     var order: Int = NOT_ORDER
     var focus: Boolean = false
+    var cluster: Boolean = false
     var querySearched: String = ""
     var showAllCameras: Boolean = false
+    var iconFav: Drawable? = ContextCompat
+            .getDrawable(context, R.drawable.ic_favorite_off)
     var iconOrder: Drawable? = ContextCompat
             .getDrawable(context, R.drawable.ic_ascending_order)
 
@@ -78,10 +86,35 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
 
     init {
         _cameras.value = list
+
     }
 
     /*************************** FUNCIONES PRIVADAS ADAPTER ***************************
      **********************************************************************************/
+
+    /**
+     * Función que añade o elimina la cámara de favoritos.
+     */
+    private fun setFavorite(camera: Camera){
+        /* Cambiamos el parámetro fav de la cámara */
+        camera.fav = !camera.fav
+        /* En caso de ser favorita, la añadimos a Room */
+        if(camera.fav){
+            coroutineScope.launch {
+                adapter.addFavorite(camera)
+            }
+            Toast.makeText(context, context.getString(R.string.toast_addfav), Toast.LENGTH_LONG).show()
+        }
+        /* En caso contrario, la eliminamos de Room */
+        else{
+            coroutineScope.launch {
+                adapter.removeFavorite(camera)
+            }
+            Toast.makeText(context, context.getString(R.string.toast_remfav), Toast.LENGTH_LONG).show()
+        }
+        /* Avisamos al adaptador de los cambios */
+        adapter.notifyDataSetChanged()
+    }
 
     /**
      * Función que ejecuta un hilo secundario.
@@ -109,17 +142,17 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
             *  marcamos que ya no está clickeada */
             else{
                 lastCamera = _camera.value
-                lastCamera?.status = false
+                lastCamera?.selected = false
             }
             /* Si el estado de la cámara clickeada es falso, lo marcamos como clickeada
             *  y actualizamos la cámara actual */
-            if(!camera.status){
-                camera.status = true
+            if(!camera.selected){
+                camera.selected = true
                 _camera.value = camera
             }
-            /* Avisamos al adaptador de los cambios */
-            adapter.notifyDataSetChanged()
         }
+        /* Avisamos al adaptador de los cambios */
+        adapter.notifyDataSetChanged()
     }
 
     /***************************** FUNCIONES PRIVADAS NAV *****************************
@@ -129,7 +162,9 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
      * Función que se llama desde el XML para activar el proceso de navegación al mapa.
      */
     fun showMap(){
+        /* Comprobamos si hay una cámara seleccionada */
         if(camera.value != null)
+            /* Comprobamos si hay conexión a internet */
             if(hasConnection(getApplication<Application>())){
                 _navigateToSelectedCamera.value = true
                 showMapComplete()
@@ -148,6 +183,14 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
 
     /***************************** FUNCIONES PRIVADAS MENÚ *****************************
      ***********************************************************************************/
+
+    /**
+     * Función, que dependiendo de las cámaras que quieres mostrar, llama a una función u otra.
+     */
+    fun setSharedList(){
+        if(showAllCameras) getMultipleCameras()
+        else getSingleCamera()
+    }
 
     /**
      * Función que asigna la sharedList con el valor de la cámara seleccionada.
@@ -170,11 +213,12 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
     }
 
     /**
-     * Función, que dependiendo de las cámaras que quieres mostrar, llama a una función u otra.
+     * Función que resetea la lista de favoritos.
      */
-    fun setSharedList(){
-        if(showAllCameras) getMultipleCameras()
-        else getSingleCamera()
+    fun reset(){
+        coroutineScope.launch {
+            adapter.resetFavoriteList()
+        }
     }
 
 }

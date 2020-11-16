@@ -1,4 +1,4 @@
-package com.miguelzaragoza.upm.dam.modules.cameras
+package com.miguelzaragoza.upm.dam.modules.ui.cameras
 
 import android.os.Bundle
 import android.view.*
