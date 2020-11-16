@@ -92,12 +92,12 @@ class CamerasFragment : Fragment() {
             if (it != null) {
                 saveQuery()
                 camerasViewModel.setSharedList()
-                findNavController()
-                        .navigate(CamerasFragmentDirections
-                                .actionCamerasFragmentToMapsFragment(
-                                        camerasViewModel.sharedList, camerasViewModel.cluster
-                                )
-                        )
+                findNavController().navigate(
+                    CamerasFragmentDirections
+                        .actionCamerasFragmentToMapsFragment(
+                            camerasViewModel.sharedList,
+                            camerasViewModel.cluster
+                        ))
             }
         })
 
