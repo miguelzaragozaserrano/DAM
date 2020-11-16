@@ -67,10 +67,10 @@ fun bindMapView(mapView: MapView, cameras: Cameras?, cluster: Boolean){
     /* Creamos el mapa */
     mapView.onCreate(Bundle())
 
-    mapView.getMapAsync {
+    mapView.getMapAsync { googleMap ->
         mapView.onResume()
         /* Le asignamos por defecto el tipo normal */
-        it.mapType = GoogleMap.MAP_TYPE_NORMAL
+        googleMap.mapType = GoogleMap.MAP_TYPE_NORMAL
         /* Recorremos la lista de cámaras para hacer zoom en la seleccionada */
         for(camera in cameras!!){
             if(camera.selected){
@@ -79,17 +79,17 @@ fun bindMapView(mapView: MapView, cameras: Cameras?, cluster: Boolean){
                                 .Builder()
                                 .target(LatLng(camera.latitude, camera.longitude))
                                 .zoom(12F).build()
-                it.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
+                googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
             }
         }
 
         /* Analizamos si queremos Cluster o no */
         if(cluster)
-            setUpCluster(it, mapView.context, cameras)
+            setUpCluster(googleMap, mapView.context, cameras)
         else{
             /* En caso de que no, añadimos las cámaras al mapa */
             cameras.map { camera ->
-                it.addMarker(
+                googleMap.addMarker(
                         MarkerOptions()
                                 .position(LatLng(camera.latitude, camera.longitude))
                                 .title(camera.name)
