@@ -147,8 +147,8 @@ class MapViewModel(application: Application): AndroidViewModel(application) {
      */
     @SuppressLint("MissingPermission")
     fun getLocation(){
-        fusedLocationClient.lastLocation.addOnSuccessListener {
-            myLocation = LatLng(it.latitude, it.longitude)
+        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+            myLocation = LatLng(location.latitude, location.longitude)
             googleMap.isMyLocationEnabled = true
             googleMap.uiSettings.isMyLocationButtonEnabled = true
             /* Creamos un String para hacer la solicitud a la API de Google Maps */
