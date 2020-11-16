@@ -14,9 +14,6 @@ import com.miguelzaragoza.upm.dam.binding.bindImage
 import com.miguelzaragoza.upm.dam.database.CameraDatabase
 import com.miguelzaragoza.upm.dam.databinding.FragmentCamerasBinding
 import com.miguelzaragoza.upm.dam.viewmodel.CamerasViewModelFactory
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 
 /******************************* VARIABLES CONSTANTES ******************************
  ***********************************************************************************/
@@ -49,10 +46,11 @@ class CamerasFragment : Fragment() {
     }
 
     /* Variables privadas */
+    private var enabled = true
     private lateinit var searchView: SearchView
-    private lateinit var iconOrder: MenuItem
     private lateinit var ivCamera: ImageView
-
+    private lateinit var iconOrder: MenuItem
+    private lateinit var optionReset: MenuItem
 
     /******************************* FUNCIONES OVERRIDE *******************************
      **********************************************************************************/
@@ -97,15 +95,26 @@ class CamerasFragment : Fragment() {
                 camerasViewModel.setSharedList()
                 findNavController()
                         .navigate(CamerasFragmentDirections
-                                .actionCamerasFragmentToMapsFragment(camerasViewModel.sharedList, camerasViewModel.cluster)
+                                .actionCamerasFragmentToMapsFragment(
+                                        camerasViewModel.sharedList, camerasViewModel.cluster
+                                )
                         )
             }
+        })
+
+        /* Observamos el tamaño de la base de datos para permitir
+        *  resetear la lista de favoritos o no */
+        camerasViewModel.database.getSize().observe(viewLifecycleOwner, { size ->
+            enabled = size > 0
+            optionReset.isEnabled = enabled
         })
 
         /* Recogemos la lista de cámaras que se pasa entre fragmentos solamente si la lista
         *  del ViewModel está vacía (primera vez que se accede al Fragment) */
         if(camerasViewModel.list.isEmpty()){
-            camerasViewModel.list.addAll(CamerasFragmentArgs.fromBundle(requireArguments()).cameras)
+            camerasViewModel.list.addAll(CamerasFragmentArgs
+                    .fromBundle(requireArguments()).cameras
+            )
         }
 
         return binding.root
@@ -124,6 +133,7 @@ class CamerasFragment : Fragment() {
         /* Asignamos los valores correspondientes */
         iconOrder = menu.findItem(R.id.order_icon)
         iconOrder.icon = camerasViewModel.iconOrder!!
+        optionReset = menu.findItem(R.id.action_reset)
         menu.findItem(R.id.fav_icon).icon = camerasViewModel.iconFav
         menu.findItem(R.id.action_all).isChecked = camerasViewModel.showAllCameras
 
@@ -239,6 +249,8 @@ class CamerasFragment : Fragment() {
                             }
                         /* Guardamos el estado */
                         camerasViewModel.mode = FAV_MODE
+                        /* Cambiamos el estado de la opción de resetear */
+                        optionReset.isEnabled = enabled
                     }
                     FAV_MODE -> {
                         /* Cambiamos el icono */
@@ -258,6 +270,8 @@ class CamerasFragment : Fragment() {
                         }
                         /* Guardamos el estado */
                         camerasViewModel.mode = NORMAL_MODE
+                        /* Cambiamos el estado de la opción de resetear */
+                        optionReset.isEnabled = true
                     }
                 }
                 /* Guardamos el valor del icono favoritos */
@@ -277,12 +291,8 @@ class CamerasFragment : Fragment() {
                         return true
                     }
                     FAV_MODE -> {
-                        /* Mostramos el diálogo para advertir del reseteo en caso de que haya
-                        *  cámaras favoritas */
-                        GlobalScope.launch(Dispatchers.Main){
-                            if(camerasViewModel.database.getSize() > 0)
-                                showDialogReset()
-                        }
+                        /* Mostramos el diálogo para advertir del reseteo */
+                        showDialogReset()
                         return true
                     }
                 }
