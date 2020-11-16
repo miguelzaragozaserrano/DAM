@@ -181,7 +181,7 @@ class CamerasViewModel(application: Application, val database: CameraDao): Andro
         _navigateToSelectedCamera.value = null
     }
 
-    /***************************** FUNCIONES PRIVADAS MENÚ *****************************
+    /********************************** FUNCIONES MENÚ *********************************
      ***********************************************************************************/
 
     /**
