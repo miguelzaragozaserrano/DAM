@@ -3,7 +3,7 @@ package com.miguelzaragoza.upm.dam.viewmodel
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.miguelzaragoza.upm.dam.modules.map.MapViewModel
+import com.miguelzaragoza.upm.dam.modules.ui.map.MapViewModel
 
 /**
  * ViewModelFactory que permite crear un MapViewModel al que pasarle parámetros por constructor
