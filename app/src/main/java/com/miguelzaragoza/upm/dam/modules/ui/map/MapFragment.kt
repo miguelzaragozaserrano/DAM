@@ -13,7 +13,6 @@ import com.miguelzaragoza.upm.dam.databinding.FragmentMapBinding
 import com.miguelzaragoza.upm.dam.modules.ui.map.MapViewModel.Companion.REQUEST_CODE
 import com.miguelzaragoza.upm.dam.viewmodel.MapViewModelFactory
 
-
 /**
  * Fragment que muestra la tercera pantalla
  * donde aparece el mapa con las cámaras.
@@ -32,9 +31,6 @@ class MapFragment : Fragment() {
         ViewModelProvider(this, MapViewModelFactory(application))
                 .get(MapViewModel::class.java)
     }
-
-    /******************************* FUNCIONES OVERRIDE *******************************
-     **********************************************************************************/
 
     /**
      * Función que se llama para instanciar la vista de interfaz de usuario (UI).
