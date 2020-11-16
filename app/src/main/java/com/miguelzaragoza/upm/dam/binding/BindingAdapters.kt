@@ -20,7 +20,7 @@ import com.miguelzaragoza.upm.dam.R
 import com.miguelzaragoza.upm.dam.model.Camera
 import com.miguelzaragoza.upm.dam.model.Cameras
 import com.miguelzaragoza.upm.dam.model.MyCluster
-import com.miguelzaragoza.upm.dam.modules.common.CamerasAdapter
+import com.miguelzaragoza.upm.dam.modules.ui.common.CamerasAdapter
 
 /**
  * Función que asigna la imagen de la cámara que se clickea al ImageView.

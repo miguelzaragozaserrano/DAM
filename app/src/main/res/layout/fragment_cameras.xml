@@ -5,7 +5,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.miguelzaragoza.upm.dam.modules.cameras.CamerasViewModel" />
+            type="com.miguelzaragoza.upm.dam.modules.ui.cameras.CamerasViewModel" />
     </data>
     <LinearLayout
         android:layout_width="match_parent"

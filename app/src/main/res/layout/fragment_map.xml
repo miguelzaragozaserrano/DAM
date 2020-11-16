@@ -10,7 +10,7 @@
             type="Boolean" />
         <variable
             name="viewModel"
-            type="com.miguelzaragoza.upm.dam.modules.map.MapViewModel" />
+            type="com.miguelzaragoza.upm.dam.modules.ui.map.MapViewModel" />
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"

@@ -1,4 +1,4 @@
-package com.miguelzaragoza.upm.dam.modules.loading
+package com.miguelzaragoza.upm.dam.modules.ui.loading
 
 import android.os.Bundle
 import android.view.LayoutInflater

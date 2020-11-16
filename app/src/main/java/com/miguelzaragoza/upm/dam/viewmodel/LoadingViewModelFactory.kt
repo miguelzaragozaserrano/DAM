@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.miguelzaragoza.upm.dam.database.CameraDao
-import com.miguelzaragoza.upm.dam.modules.loading.LoadingViewModel
+import com.miguelzaragoza.upm.dam.modules.ui.loading.LoadingViewModel
 
 /**
  * ViewModelFactory que permite crear un LoadingViewModel al que pasarle parámetros por constructor

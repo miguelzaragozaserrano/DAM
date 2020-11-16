@@ -6,7 +6,7 @@
     app:startDestination="@id/loading_fragment">
     <fragment
         android:id="@+id/loading_fragment"
-        android:name="com.miguelzaragoza.upm.dam.modules.loading.LoadingFragment"
+        android:name="com.miguelzaragoza.upm.dam.modules.ui.loading.LoadingFragment"
         android:label="loading_fragment"
         tools:layout="@layout/fragment_loading">
         <action
@@ -17,7 +17,7 @@
     </fragment>
     <fragment
         android:id="@+id/cameras_fragment"
-        android:name="com.miguelzaragoza.upm.dam.modules.cameras.CamerasFragment"
+        android:name="com.miguelzaragoza.upm.dam.modules.ui.cameras.CamerasFragment"
         android:label="cameras_fragment"
         tools:layout="@layout/fragment_cameras">
         <action
@@ -33,7 +33,7 @@
     </fragment>
     <fragment
         android:id="@+id/map_fragment"
-        android:name="com.miguelzaragoza.upm.dam.modules.map.MapFragment"
+        android:name="com.miguelzaragoza.upm.dam.modules.ui.map.MapFragment"
         android:label="map_fragment"
         tools:layout="@layout/fragment_map">
         <argument
