@@ -130,8 +130,6 @@ class MapFragment : Fragment() {
                 }
             }
         }
-        /* Marcamos nuestra ubicación en el mapa */
-        mapViewModel.updateLocationUI()
     }
 
     /**

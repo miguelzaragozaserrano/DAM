@@ -217,22 +217,4 @@ class MapViewModel(application: Application): AndroidViewModel(application) {
         _askPermissions.value = null
     }
 
-    /**
-     * Función que actualiza la localización del dispositivo.
-     */
-    fun updateLocationUI() {
-        try {
-            if (mLocationPermissionGranted) {
-                googleMap.isMyLocationEnabled = true
-                googleMap.uiSettings.isMyLocationButtonEnabled = true
-            } else {
-                googleMap.isMyLocationEnabled = false
-                googleMap.uiSettings.isMyLocationButtonEnabled = false
-                getLocationPermission()
-            }
-        } catch (e: SecurityException) {
-            e.printStackTrace()
-        }
-    }
-
 }
