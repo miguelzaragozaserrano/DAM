@@ -1,5 +1,6 @@
 package com.miguelzaragoza.upm.dam.modules.ui.cameras
 
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.view.*
 import android.widget.ImageView
@@ -71,6 +72,9 @@ class CamerasFragment : Fragment() {
             inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
+        /* Cambiamos la configuración de la orientación */
+        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+
         /* Indicamos que va a existir un menú de opciones */
         setHasOptionsMenu(true)
 

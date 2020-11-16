@@ -1,6 +1,7 @@
 package com.miguelzaragoza.upm.dam.modules.ui.map
 
 import android.annotation.SuppressLint
+import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -49,6 +50,9 @@ class MapFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        /* Cambiamos la configuración de la orientación */
+        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+
         val binding = FragmentMapBinding.inflate(inflater)
 
         /* Permite a Data Binding observar LiveData con el lifecycle de su Fragment */
