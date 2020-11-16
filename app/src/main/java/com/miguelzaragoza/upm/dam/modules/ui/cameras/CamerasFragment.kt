@@ -50,7 +50,6 @@ class CamerasFragment : Fragment() {
     private lateinit var searchView: SearchView
     private lateinit var ivCamera: ImageView
     private lateinit var iconOrder: MenuItem
-    private lateinit var optionReset: MenuItem
 
     /******************************* FUNCIONES OVERRIDE *******************************
      **********************************************************************************/
@@ -106,7 +105,7 @@ class CamerasFragment : Fragment() {
         *  resetear la lista de favoritos o no */
         camerasViewModel.database.getSize().observe(viewLifecycleOwner, { size ->
             enabled = size > 0
-            optionReset.isEnabled = enabled
+            camerasViewModel.optionReset.isEnabled = enabled
         })
 
         /* Recogemos la lista de cámaras que se pasa entre fragmentos solamente si la lista
@@ -133,7 +132,7 @@ class CamerasFragment : Fragment() {
         /* Asignamos los valores correspondientes */
         iconOrder = menu.findItem(R.id.order_icon)
         iconOrder.icon = camerasViewModel.iconOrder!!
-        optionReset = menu.findItem(R.id.action_reset)
+        camerasViewModel.optionReset = menu.findItem(R.id.action_reset)
         menu.findItem(R.id.fav_icon).icon = camerasViewModel.iconFav
         menu.findItem(R.id.action_all).isChecked = camerasViewModel.showAllCameras
 
@@ -250,7 +249,7 @@ class CamerasFragment : Fragment() {
                         /* Guardamos el estado */
                         camerasViewModel.mode = FAV_MODE
                         /* Cambiamos el estado de la opción de resetear */
-                        optionReset.isEnabled = enabled
+                        camerasViewModel.optionReset.isEnabled = enabled
                     }
                     FAV_MODE -> {
                         /* Cambiamos el icono */
@@ -271,7 +270,7 @@ class CamerasFragment : Fragment() {
                         /* Guardamos el estado */
                         camerasViewModel.mode = NORMAL_MODE
                         /* Cambiamos el estado de la opción de resetear */
-                        optionReset.isEnabled = true
+                        camerasViewModel.optionReset.isEnabled = true
                     }
                 }
                 /* Guardamos el valor del icono favoritos */

@@ -2,6 +2,7 @@ package com.miguelzaragoza.upm.dam.modules.ui.cameras
 
 import android.app.Application
 import android.graphics.drawable.Drawable
+import android.view.MenuItem
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
@@ -58,6 +59,7 @@ class CamerasViewModel(application: Application, val database: CameraDao): Andro
     var cluster: Boolean = false
     var querySearched: String = ""
     var showAllCameras: Boolean = false
+    lateinit var optionReset: MenuItem
     var iconFav: Drawable? = ContextCompat
             .getDrawable(context, R.drawable.ic_favorite_off)
     var iconOrder: Drawable? = ContextCompat
