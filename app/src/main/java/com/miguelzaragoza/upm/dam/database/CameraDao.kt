@@ -1,5 +1,6 @@
 package com.miguelzaragoza.upm.dam.database
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -56,6 +57,6 @@ interface CameraDao {
      * @return Número de filas
      */
     @Query("SELECT COUNT (*) FROM camera_table")
-    suspend fun getSize(): Int
+    fun getSize(): LiveData<Int>
 
 }
