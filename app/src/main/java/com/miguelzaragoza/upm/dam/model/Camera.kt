@@ -3,7 +3,6 @@ package com.miguelzaragoza.upm.dam.model
 import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.google.android.gms.maps.model.LatLng
 import kotlinx.android.parcel.Parcelize
 
 /**
