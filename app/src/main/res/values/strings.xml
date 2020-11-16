@@ -22,4 +22,7 @@
     <string name="alert_reset_title">¿Deseas resetear la lista de favoritos?</string>
     <string name="alert_reset_message">Estás a punto de vaciar toda tu lista de favoritos. Esta operación no tiene vuelta atrás. ¿Estás seguro que quieres llevarla acabo?</string>
     <string name="location">Ubicación</string>
+    <string name="toast_addfav">Cámara añadida a favoritos</string>
+    <string name="toast_remfav">Cámara eliminada de favoritos</string>
+    <string name="title_activity_map">MapActivity</string>
 </resources>
