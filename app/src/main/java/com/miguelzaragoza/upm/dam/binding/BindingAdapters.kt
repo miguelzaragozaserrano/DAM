@@ -71,29 +71,29 @@ fun bindMapView(mapView: MapView, cameras: Cameras?, cluster: Boolean){
         mapView.onResume()
         /* Le asignamos por defecto el tipo normal */
         googleMap.mapType = GoogleMap.MAP_TYPE_NORMAL
-        /* Recorremos la lista de cámaras para hacer zoom en la seleccionada */
-        for(camera in cameras!!){
-            if(camera.selected){
-                val cameraPosition =
-                        CameraPosition
-                                .Builder()
-                                .target(LatLng(camera.latitude, camera.longitude))
-                                .zoom(12F).build()
-                googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
-            }
-        }
 
         /* Analizamos si queremos Cluster o no */
         if(cluster)
-            setUpCluster(googleMap, mapView.context, cameras)
+            setUpCluster(googleMap, mapView.context, cameras!!)
         else{
             /* En caso de que no, añadimos las cámaras al mapa */
-            cameras.map { camera ->
-                googleMap.addMarker(
-                        MarkerOptions()
-                                .position(LatLng(camera.latitude, camera.longitude))
-                                .title(camera.name)
-                )
+            cameras?.map { camera ->
+                val marker = MarkerOptions()
+                        .position(LatLng(camera.latitude, camera.longitude))
+                        .title(camera.name)
+                if(camera.selected){
+                    /* Si la cámara es la seleccionada, centramos y mostramos la información */
+                    googleMap.addMarker(marker).showInfoWindow()
+                    val cameraPosition =
+                            CameraPosition
+                                    .Builder()
+                                    .target(LatLng(camera.latitude, camera.longitude))
+                                    .zoom(12F).build()
+                    googleMap.animateCamera(
+                            CameraUpdateFactory.newCameraPosition(cameraPosition)
+                    )
+                }
+                else googleMap.addMarker(marker)
             }
         }
     }
