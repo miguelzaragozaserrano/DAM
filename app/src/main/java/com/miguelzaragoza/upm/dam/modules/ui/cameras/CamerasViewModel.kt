@@ -9,7 +9,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.miguelzaragoza.upm.dam.R
-import com.miguelzaragoza.upm.dam.database.CameraDao
 import com.miguelzaragoza.upm.dam.database.CameraDatabase
 import com.miguelzaragoza.upm.dam.model.Camera
 import com.miguelzaragoza.upm.dam.model.Cameras
