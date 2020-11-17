@@ -8,6 +8,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.miguelzaragoza.upm.dam.database.CameraDao
+import com.miguelzaragoza.upm.dam.database.CameraDatabase
 import com.miguelzaragoza.upm.dam.model.Camera
 import com.miguelzaragoza.upm.dam.model.Cameras
 import kotlinx.coroutines.CoroutineScope
@@ -24,12 +25,14 @@ import java.io.InputStream
  * LoadingFragment.
  *
  * @param application Variable que nos permitirá obtener el contexto de la aplicación.
- * @param database Base de datos Room.
  */
-class LoadingViewModel(application: Application, val database: CameraDao): AndroidViewModel(application) {
+class LoadingViewModel(application: Application): AndroidViewModel(application) {
 
     /******************************** VARIABLES BÁSICAS ********************************
      ***********************************************************************************/
+
+    /* Variable para definir la base de datos */
+    val database = CameraDatabase.getInstance(application).cameraDao
 
     /* Variables privadas para definir el contexto cuando sea necesario,
     *  y para la ejecución de hilos en segundo plano */

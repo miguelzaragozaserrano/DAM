@@ -10,13 +10,12 @@ import com.miguelzaragoza.upm.dam.modules.ui.cameras.CamerasViewModel
  * ViewModelFactory que permite crear un CamerasViewModel al que pasarle parámetros por constructor
  */
 class CamerasViewModelFactory (
-    private val application: Application,
-    private val database: CameraDao
+    private val application: Application
 ) : ViewModelProvider.Factory {
     @Suppress("unchecked_cast")
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(CamerasViewModel::class.java)) {
-            return CamerasViewModel(application, database) as T
+            return CamerasViewModel(application) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

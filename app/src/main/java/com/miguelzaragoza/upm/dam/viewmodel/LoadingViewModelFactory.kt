@@ -10,13 +10,12 @@ import com.miguelzaragoza.upm.dam.modules.ui.loading.LoadingViewModel
  * ViewModelFactory que permite crear un LoadingViewModel al que pasarle parámetros por constructor
  */
 class LoadingViewModelFactory (
-        private val application: Application,
-        private val database: CameraDao
+        private val application: Application
 ) : ViewModelProvider.Factory {
     @Suppress("unchecked_cast")
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(LoadingViewModel::class.java)) {
-            return LoadingViewModel(application, database) as T
+            return LoadingViewModel(application) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

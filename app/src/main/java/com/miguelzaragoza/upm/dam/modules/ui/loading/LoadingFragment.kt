@@ -26,8 +26,7 @@ class LoadingFragment : Fragment() {
      */
     private val loadingViewModel: LoadingViewModel by lazy{
         val application = requireNotNull(this.activity).application
-        val database = CameraDatabase.getInstance(application).cameraDao
-        ViewModelProvider(this, LoadingViewModelFactory(application, database))
+        ViewModelProvider(this, LoadingViewModelFactory(application))
                 .get(LoadingViewModel::class.java)
     }
 

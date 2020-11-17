@@ -41,8 +41,7 @@ class CamerasFragment : Fragment() {
      */
     private val camerasViewModel: CamerasViewModel by lazy{
         val application = requireNotNull(this.activity).application
-        val database = CameraDatabase.getInstance(application).cameraDao
-        ViewModelProvider(this, CamerasViewModelFactory(application, database))
+        ViewModelProvider(this, CamerasViewModelFactory(application))
                 .get(CamerasViewModel::class.java)
     }
 
