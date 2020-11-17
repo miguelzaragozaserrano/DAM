@@ -93,7 +93,7 @@ class CamerasAdapter(
         withContext(Dispatchers.IO){
             database.remove(camera)
         }
-        if(mode == FAV_MODE) submitList(favoriteList)
+        if(mode == FAV_MODE) showFavoriteList()
     }
 
     suspend fun resetFavoriteList(){
