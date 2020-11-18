@@ -4,13 +4,17 @@ import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.maps.GoogleMap
+import com.miguelzaragoza.upm.dam.MapActivity
 import com.miguelzaragoza.upm.dam.databinding.FragmentMapBinding
+import com.miguelzaragoza.upm.dam.model.Camera
+import com.miguelzaragoza.upm.dam.model.Cameras
 import com.miguelzaragoza.upm.dam.modules.ui.map.MapViewModel.Companion.REQUEST_CODE
 import com.miguelzaragoza.upm.dam.viewmodel.MapViewModelFactory
 
@@ -33,6 +37,9 @@ class MapFragment : Fragment() {
                 .get(MapViewModel::class.java)
     }
 
+    /******************************* FUNCIONES OVERRIDE *******************************
+     **********************************************************************************/
+
     /**
      * Función que se llama para instanciar la vista de interfaz de usuario (UI).
      *
@@ -50,18 +57,18 @@ class MapFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        /* Cambiamos la configuración de la orientación */
-        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-
         val binding = FragmentMapBinding.inflate(inflater)
 
         /* Permite a Data Binding observar LiveData con el lifecycle de su Fragment */
         binding.lifecycleOwner = this
 
-        /* Recogemos la lista de cámaras que se pasa entre fragmentos y si queremos un
+        /* Recogemos la lista de cámaras que se pasa entre activities y si queremos un
         *  activar el modo cluster o no */
-        val cameras = MapFragmentArgs.fromBundle(requireArguments()).cameras
-        val cluster = MapFragmentArgs.fromBundle(requireArguments()).cluster
+        val mapActivity = activity as MapActivity
+        val cluster = mapActivity.getCluster()
+        val sharedList = mapActivity.getSharedList()
+        val cameras = Cameras()
+        cameras.addAll(sharedList)
 
         /* Guardamos la cámara seleccionada, para poder centrar el mapa */
         if(mapViewModel.camera == null){

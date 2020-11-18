@@ -21,28 +21,11 @@
         android:label="cameras_fragment"
         tools:layout="@layout/fragment_cameras">
         <action
-            android:id="@+id/action_cameras_fragment_to_maps_fragment"
-            app:destination="@id/map_fragment" />
-        <action
             android:id="@+id/action_cameras_fragment_to_splash_fragment"
             app:destination="@id/loading_fragment" />
         <argument
             android:name="cameras"
             app:argType="com.miguelzaragoza.upm.dam.model.Cameras"
-            />
-    </fragment>
-    <fragment
-        android:id="@+id/map_fragment"
-        android:name="com.miguelzaragoza.upm.dam.modules.ui.map.MapFragment"
-        android:label="map_fragment"
-        tools:layout="@layout/fragment_map">
-        <argument
-            android:name="cameras"
-            app:argType="com.miguelzaragoza.upm.dam.model.Cameras"
-            />
-        <argument
-            android:name="cluster"
-            app:argType="boolean"
             />
     </fragment>
 </navigation>
