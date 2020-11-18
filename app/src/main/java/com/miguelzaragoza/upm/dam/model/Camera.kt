@@ -32,5 +32,4 @@ data class Camera(
 /**
  * Clase Parcelable de la lista de objetos Camera.
  */
-@Parcelize
-class Cameras: ArrayList<Camera>(), Parcelable
+class Cameras: ArrayList<Camera>()
