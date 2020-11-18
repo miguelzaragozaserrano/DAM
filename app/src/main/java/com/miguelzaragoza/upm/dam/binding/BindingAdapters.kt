@@ -102,34 +102,45 @@ fun bindMapView(mapView: MapView, cameras: Cameras?, cluster: Boolean){
 /**
  * Función que configura el Cluster.
  *
- * @param map Mapa al que añadiremos el Cluster.
+ * @param googleMap Mapa al que añadiremos el Cluster.
  * @param context Contexto.
  * @param cameras Lista de cámaras.
  */
-fun setUpCluster(map: GoogleMap, context: Context, cameras: Cameras){
+fun setUpCluster(googleMap: GoogleMap, context: Context, cameras: Cameras){
 
     /* Iniciamos el gestor con el contexto y el mapa  */
-    val clusterManager: ClusterManager<MyCluster> = ClusterManager(context, map)
+    val clusterManager: ClusterManager<MyCluster> = ClusterManager(context, googleMap)
 
     /* Declaramos los listeners implementados por el Cluster */
-    map.setOnCameraIdleListener(clusterManager)
-    map.setOnMarkerClickListener(clusterManager)
+    googleMap.setOnCameraIdleListener(clusterManager)
+    googleMap.setOnMarkerClickListener(clusterManager)
 
     /* Añadimos las cámaras al gestor */
-    addItems(clusterManager, cameras)
+    addItems(googleMap, clusterManager, cameras)
 }
 
 /**
  * Función que recorre la lista de cámaras para ir añadiéndolos al gestor.
  */
-fun addItems(clusterManager: ClusterManager<MyCluster>, cameras: Cameras) {
+fun addItems(googleMap: GoogleMap, clusterManager: ClusterManager<MyCluster>, cameras: Cameras) {
     for (camera in cameras) {
         /* Creamos un objeto MyCluster para añadirlo al gestor */
         val item =
             MyCluster(LatLng(camera.latitude, camera.longitude),
-                    "Title ${camera.name}",
-                    "Snippet ${camera.id}"
+                camera.name,
+                    "${camera.latitude}, ${camera.latitude}"
             )
         clusterManager.addItem(item)
+        if(camera.selected){
+            /* Si la cámara es la seleccionada, centramos */
+            val cameraPosition =
+                CameraPosition
+                    .Builder()
+                    .target(LatLng(camera.latitude, camera.longitude))
+                    .zoom(12F).build()
+            googleMap.animateCamera(
+                CameraUpdateFactory.newCameraPosition(cameraPosition)
+            )
+        }
     }
 }
