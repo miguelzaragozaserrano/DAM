@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 import kotlinx.android.parcel.Parcelize
 
 /**
- * Clase del objeto Camera.
+ * Clase Parcelable del objeto Camera.
  *
  * @param id Identificador de la cámara.
  * @param name Nombre de la cámara.
@@ -17,6 +17,7 @@ import kotlinx.android.parcel.Parcelize
  * @param fav Determina si la cámara pertenece a las favoritas o no.
  */
 @Entity(tableName = "camera_table")
+@Parcelize
 data class Camera(
     @PrimaryKey
     val id: Int,
@@ -26,11 +27,10 @@ data class Camera(
     val longitude: Double,
     var selected: Boolean,
     var fav: Boolean
-)
+): Parcelable
 
 /**
- * Clase Parcelable para enviar la lista de cámaras que queremos mostrar en el mapa
- * en función de lo solicitado en el primer Fragment.
+ * Clase Parcelable de la lista de objetos Camera.
  */
 @Parcelize
 class Cameras: ArrayList<Camera>(), Parcelable
