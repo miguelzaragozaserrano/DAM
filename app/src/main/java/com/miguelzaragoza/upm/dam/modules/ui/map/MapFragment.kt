@@ -37,9 +37,6 @@ class MapFragment : Fragment() {
                 .get(MapViewModel::class.java)
     }
 
-    /******************************* FUNCIONES OVERRIDE *******************************
-     **********************************************************************************/
-
     /**
      * Función que se llama para instanciar la vista de interfaz de usuario (UI).
      *
@@ -62,7 +59,7 @@ class MapFragment : Fragment() {
         /* Permite a Data Binding observar LiveData con el lifecycle de su Fragment */
         binding.lifecycleOwner = this
 
-        /* Recogemos la lista de cámaras que se pasa entre activities y si queremos un
+        /* Recogemos la lista de cámaras que se pasa entre fragmentos y si queremos un
         *  activar el modo cluster o no */
         val mapActivity = activity as MapActivity
         val cluster = mapActivity.getCluster()
