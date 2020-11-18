@@ -1,7 +1,8 @@
 package com.miguelzaragoza.upm.dam.modules.ui.cameras
 
-import android.content.pm.ActivityInfo
+import android.content.Intent
 import android.os.Bundle
+import android.os.Parcelable
 import android.view.*
 import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
@@ -10,9 +11,9 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import com.miguelzaragoza.upm.dam.MapActivity
 import com.miguelzaragoza.upm.dam.R
 import com.miguelzaragoza.upm.dam.binding.bindImage
-import com.miguelzaragoza.upm.dam.database.CameraDatabase
 import com.miguelzaragoza.upm.dam.databinding.FragmentCamerasBinding
 import com.miguelzaragoza.upm.dam.viewmodel.CamerasViewModelFactory
 
@@ -68,12 +69,9 @@ class CamerasFragment : Fragment() {
      * @return Devuelve la vista UI del Fragment.
      */
     override fun onCreateView(
-            inflater: LayoutInflater, container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
-        /* Cambiamos la configuración de la orientación */
-        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-
         /* Indicamos que va a existir un menú de opciones */
         setHasOptionsMenu(true)
 
@@ -90,17 +88,16 @@ class CamerasFragment : Fragment() {
         ivCamera = binding.cameraImage
 
         /* Observamos la variable navigateToSelectedCamera. Si toma un valor distinto de null,
-        *  es debido a que se ha pulsado una imagen y por tanto navegamos a un tercer fragment */
+        *  es debido a que se ha pulsado una imagen y por tanto navegamos al segundo activity */
         camerasViewModel.navigateToSelectedCamera.observe(viewLifecycleOwner, {
             if (it != null) {
                 saveQuery()
                 camerasViewModel.setSharedList()
-                findNavController().navigate(
-                    CamerasFragmentDirections
-                        .actionCamerasFragmentToMapsFragment(
-                            camerasViewModel.sharedList,
-                            camerasViewModel.cluster
-                        ))
+                val intent = Intent(context, MapActivity::class.java)
+                intent.putParcelableArrayListExtra(
+                    "sharedList", camerasViewModel.sharedList as ArrayList<out Parcelable?>?)
+                intent.putExtra("cluster", camerasViewModel.cluster)
+                startActivity(intent)
             }
         })
 
@@ -114,7 +111,8 @@ class CamerasFragment : Fragment() {
         /* Recogemos la lista de cámaras que se pasa entre fragmentos solamente si la lista
         *  del ViewModel está vacía (primera vez que se accede al Fragment) */
         if(camerasViewModel.list.isEmpty()){
-            camerasViewModel.list.addAll(CamerasFragmentArgs
+            camerasViewModel.list.addAll(
+                CamerasFragmentArgs
                     .fromBundle(requireArguments()).cameras
             )
         }
@@ -151,33 +149,35 @@ class CamerasFragment : Fragment() {
         *  expandir el SearchView cuando escribimos. Además, guardamos el valor focus
         *  para saber si cuando cambiamos de Fragment, teníamos el SearchView activo o no */
         iconSearch.setOnActionExpandListener(
-                object: MenuItem.OnActionExpandListener{
-            override fun onMenuItemActionExpand(p0: MenuItem?): Boolean {
-                setItemsVisibility(menu, iconSearch, false)
-                camerasViewModel.focus = true
-                return true
-            }
-            override fun onMenuItemActionCollapse(p0: MenuItem?): Boolean {
-                setItemsVisibility(menu, iconSearch, true)
-                camerasViewModel.focus = false
-                return true
-            }
-        })
+            object : MenuItem.OnActionExpandListener {
+                override fun onMenuItemActionExpand(p0: MenuItem?): Boolean {
+                    setItemsVisibility(menu, iconSearch, false)
+                    camerasViewModel.focus = true
+                    return true
+                }
+
+                override fun onMenuItemActionCollapse(p0: MenuItem?): Boolean {
+                    setItemsVisibility(menu, iconSearch, true)
+                    camerasViewModel.focus = false
+                    return true
+                }
+            })
 
         /* Declaramos un setOnQueryListener para que cada vez que cambie el texto del SearchView
         *  nos filtre la lista que nos interesa. En caso de que pulsemos la lupa, cierra el
         *  teclado */
         searchView.setOnQueryTextListener(
-                object : SearchView.OnQueryTextListener {
-                    override fun onQueryTextSubmit(query: String?): Boolean {
-                        return false
-                    }
-                    override fun onQueryTextChange(query: String?): Boolean {
-                        if(camerasViewModel.querySearched == "")
-                            camerasViewModel.adapter.filterByName(query)
-                        return true
-                    }
-                })
+            object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    return false
+                }
+
+                override fun onQueryTextChange(query: String?): Boolean {
+                    if (camerasViewModel.querySearched == "")
+                        camerasViewModel.adapter.filterByName(query)
+                    return true
+                }
+            })
 
         /* En caso de que el SearchView estuviera activo, lo volvemos a abrir y le asignamos
         *  el valor de la query que tenía escrita */
@@ -229,23 +229,23 @@ class CamerasFragment : Fragment() {
             }
             R.id.fav_icon -> {
                 /* Si pulsamos el icono de favorito, analizamos el estado en el que se encuentra */
-                when(camerasViewModel.mode){
+                when (camerasViewModel.mode) {
                     NORMAL_MODE -> {
                         /* Cambiamos el icono */
                         item.icon = ContextCompat
-                                .getDrawable(requireContext(), R.drawable.ic_favorite_on)
+                            .getDrawable(requireContext(), R.drawable.ic_favorite_on)
                         /* Desactivamos el botón de ordenar */
                         iconOrder.icon = ContextCompat
-                                .getDrawable(requireContext(), R.drawable.ic_order_disabled)
+                            .getDrawable(requireContext(), R.drawable.ic_order_disabled)
                         iconOrder.isEnabled = false
                         /* Cambiamos el modo del adaptador */
                         camerasViewModel.adapter.setMode(FAV_MODE)
                         /* Mostramos la lista de favoritos */
                         camerasViewModel.adapter.showFavoriteList()
                         /* Analizamos si tenemos una cámara seleccionada */
-                        if(camerasViewModel.camera.value != null)
-                            /* Y en caso de que al cambiar no sea favorita */
-                            if(!camerasViewModel.camera.value!!.fav){
+                        if (camerasViewModel.camera.value != null)
+                        /* Y en caso de que al cambiar no sea favorita */
+                            if (!camerasViewModel.camera.value!!.fav) {
                                 /* Quitamos la imagen */
                                 ivCamera.setImageDrawable(null)
                             }
@@ -257,7 +257,7 @@ class CamerasFragment : Fragment() {
                     FAV_MODE -> {
                         /* Cambiamos el icono */
                         item.icon = ContextCompat
-                                .getDrawable(requireContext(), R.drawable.ic_favorite_off)
+                            .getDrawable(requireContext(), R.drawable.ic_favorite_off)
                         /* Actiamos y recuperamos el botón de ordenar */
                         iconOrder.icon = camerasViewModel.iconOrder
                         iconOrder.isEnabled = true
@@ -267,7 +267,7 @@ class CamerasFragment : Fragment() {
                         camerasViewModel.adapter.showNormalList()
                         /* En caso de que no haya imagen al volver del modo favoritos,
                         *  mostramos la seleccionada (si hubiera) */
-                        if(ivCamera.drawable == null) {
+                        if (ivCamera.drawable == null) {
                             bindImage(ivCamera, camerasViewModel.camera.value?.url)
                         }
                         /* Guardamos el estado */
@@ -283,12 +283,13 @@ class CamerasFragment : Fragment() {
             R.id.action_reset -> {
                 /* Si pulsamos la opción de resetear la lista,
                 *  analizamos el estado en el que se encuentra */
-                when(camerasViewModel.mode){
+                when (camerasViewModel.mode) {
                     NORMAL_MODE -> {
                         /* Volvemos al LoadingFragment */
                         findNavController()
-                            .navigate(CamerasFragmentDirections
-                                .actionCamerasFragmentToSplashFragment()
+                            .navigate(
+                                CamerasFragmentDirections
+                                    .actionCamerasFragmentToSplashFragment()
                             )
                         return true
                     }
@@ -305,7 +306,7 @@ class CamerasFragment : Fragment() {
                 *  actualizamos el valor y, en caso de marcarlo, preguntamos si queremos Cluster */
                 camerasViewModel.showAllCameras = !camerasViewModel.showAllCameras
                 item.isChecked = !item.isChecked
-                if(item.isChecked) showDialogCluster()
+                if (item.isChecked) showDialogCluster()
                 return true
             }
             else -> return super.onOptionsItemSelected(item)
@@ -344,11 +345,13 @@ class CamerasFragment : Fragment() {
         val builder = AlertDialog.Builder(requireContext())
         builder.setTitle(getString(R.string.alert_cluster_title))
             .setMessage(getString(R.string.alert_cluster_message))
-            .setPositiveButton(getString(android.R.string.ok)
+            .setPositiveButton(
+                getString(android.R.string.ok)
             ) { _, _ ->
                 camerasViewModel.cluster = true
             }
-            .setNegativeButton(getString(R.string.cancel_button)
+            .setNegativeButton(
+                getString(R.string.cancel_button)
             ) { _, _ ->
                 camerasViewModel.cluster = false
             }
@@ -364,12 +367,14 @@ class CamerasFragment : Fragment() {
         val builder = AlertDialog.Builder(requireContext())
         builder.setTitle(getString(R.string.alert_reset_title))
             .setMessage(getString(R.string.alert_reset_message))
-            .setPositiveButton(getString((android.R.string.ok))
+            .setPositiveButton(
+                getString((android.R.string.ok))
             ) { _, _ ->
                 camerasViewModel.reset()
                 ivCamera.setImageDrawable(null)
             }
-            .setNegativeButton(getString(R.string.cancel_button)
+            .setNegativeButton(
+                getString(R.string.cancel_button)
             ) { _, _ ->
             }
         builder.create()
