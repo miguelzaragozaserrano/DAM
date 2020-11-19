@@ -112,7 +112,7 @@ class MapViewModel(application: Application): AndroidViewModel(application) {
                 getLocationPermission()
                 iconLocation.setImageResource(R.drawable.ic_marker_on)
             }else
-                /* Si no hay conexión, mostramos un mensaje */
+            /* Si no hay conexión, mostramos un mensaje */
                 Toast
                     .makeText(context, context.getString(R.string.check_connection), Toast.LENGTH_LONG)
                     .show()
@@ -132,9 +132,9 @@ class MapViewModel(application: Application): AndroidViewModel(application) {
      */
     private fun getLocationPermission(){
         if (ActivityCompat
-                        .checkSelfPermission(
-                                context, fineLocationPermission
-                        ) == PackageManager.PERMISSION_GRANTED) {
+                .checkSelfPermission(
+                    context, fineLocationPermission
+                ) == PackageManager.PERMISSION_GRANTED) {
             mLocationPermissionGranted = true
             getLocation()
         }else{

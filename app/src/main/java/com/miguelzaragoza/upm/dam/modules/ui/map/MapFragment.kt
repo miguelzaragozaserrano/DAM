@@ -34,7 +34,7 @@ class MapFragment : Fragment() {
     private val mapViewModel: MapViewModel by lazy{
         val application = requireNotNull(this.activity).application
         ViewModelProvider(this, MapViewModelFactory(application))
-                .get(MapViewModel::class.java)
+            .get(MapViewModel::class.java)
     }
 
     /**

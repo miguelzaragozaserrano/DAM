@@ -97,27 +97,43 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
      **********************************************************************************/
 
     /**
-     * Función que añade o elimina la cámara de favoritos.
+     * Función que ejecuta un hilo secundario.
+     *
+     * @param camera Cámara seleccionada.
      */
     private fun setFavorite(camera: Camera){
-        /* Cambiamos el parámetro fav de la cámara */
-        camera.fav = !camera.fav
-        /* En caso de ser favorita, la añadimos a Room */
-        if(camera.fav){
-            coroutineScope.launch {
-                adapter.addFavorite(camera)
+       coroutineScope.launch {
+           displayFav(camera)
+       }
+    }
+
+    /**
+     * Función suspendida que actualiza el parámetro fav
+     * de la cámara.
+     *
+     * @param camera Cámara a la que queremos activar el fav.
+     */
+    private suspend fun displayFav(camera: Camera){
+        withContext(Dispatchers.Main){
+            /* Cambiamos el parámetro fav de la cámara */
+            camera.fav = !camera.fav
+            /* En caso de ser favorita, la añadimos a Room */
+            if(camera.fav){
+                coroutineScope.launch {
+                    adapter.addFavorite(camera)
+                }
+                Toast.makeText(context, context.getString(R.string.toast_addfav), Toast.LENGTH_LONG).show()
             }
-            Toast.makeText(context, context.getString(R.string.toast_addfav), Toast.LENGTH_LONG).show()
-        }
-        /* En caso contrario, la eliminamos de Room */
-        else{
-            coroutineScope.launch {
-                adapter.removeFavorite(camera)
+            /* En caso contrario, la eliminamos de Room */
+            else{
+                coroutineScope.launch {
+                    adapter.removeFavorite(camera)
+                }
+                Toast.makeText(context, context.getString(R.string.toast_remfav), Toast.LENGTH_LONG).show()
             }
-            Toast.makeText(context, context.getString(R.string.toast_remfav), Toast.LENGTH_LONG).show()
+            /* Avisamos al adaptador de los cambios */
+            adapter.notifyDataSetChanged()
         }
-        /* Avisamos al adaptador de los cambios */
-        adapter.notifyDataSetChanged()
     }
 
     /**
@@ -132,10 +148,10 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
     }
 
     /**
-     * Función suspendida que actualiza el status
-     * de la cámara para activar o desactivar el RadioButton.
+     * Función suspendida que actualiza el parámetro selected
+     * de la cámara.
      *
-     * @param camera Cámara a la que queremos activar el check.
+     * @param camera Cámara a la que queremos activar el selected.
      */
     private suspend fun displayCheck(camera: Camera){
         withContext(Dispatchers.Main){
@@ -154,9 +170,9 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
                 camera.selected = true
                 _camera.value = camera
             }
+            /* Avisamos al adaptador de los cambios */
+            adapter.notifyDataSetChanged()
         }
-        /* Avisamos al adaptador de los cambios */
-        adapter.notifyDataSetChanged()
     }
 
     /***************************** FUNCIONES PRIVADAS NAV *****************************
