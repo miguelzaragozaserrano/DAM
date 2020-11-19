@@ -143,7 +143,7 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
      */
     private fun selectedCamera(camera: Camera){
         coroutineScope.launch {
-            displayCheck(camera)
+            displayBorder(camera)
         }
     }
 
@@ -153,7 +153,7 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
      *
      * @param camera Cámara a la que queremos activar el selected.
      */
-    private suspend fun displayCheck(camera: Camera){
+    private suspend fun displayBorder(camera: Camera){
         withContext(Dispatchers.Main){
             /* Si no existe una última cámara seleccionada es porque
             *  es la primera vez que hacemos click en una, asi que le asignamos la clickeada */
@@ -239,6 +239,15 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
         coroutineScope.launch {
             adapter.resetFavoriteList()
         }
+    }
+
+    /********************************* FUNCIONES BÁSICAS *******************************
+     ***********************************************************************************/
+
+    fun resetSelectedCamera(){
+        _camera.value?.selected = false
+        _camera.value = null
+        lastCamera = null
     }
 
 }

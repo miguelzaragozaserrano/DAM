@@ -13,7 +13,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.miguelzaragoza.upm.dam.MapActivity
 import com.miguelzaragoza.upm.dam.R
-import com.miguelzaragoza.upm.dam.binding.bindImage
 import com.miguelzaragoza.upm.dam.databinding.FragmentCamerasBinding
 import com.miguelzaragoza.upm.dam.viewmodel.CamerasViewModelFactory
 
@@ -174,7 +173,11 @@ class CamerasFragment : Fragment() {
 
                 override fun onQueryTextChange(query: String?): Boolean {
                     if (camerasViewModel.querySearched == "")
-                        camerasViewModel.adapter.filterByName(query)
+                        camerasViewModel.camera.value?.let {
+                            camerasViewModel.adapter.filterByName(query, ivCamera,
+                                it
+                            )
+                        }
                     return true
                 }
             })
@@ -246,8 +249,9 @@ class CamerasFragment : Fragment() {
                         if (camerasViewModel.camera.value != null)
                         /* Y en caso de que al cambiar no sea favorita */
                             if (!camerasViewModel.camera.value!!.fav) {
-                                /* Quitamos la imagen */
+                                /* Quitamos la imagen y la cámara */
                                 ivCamera.setImageDrawable(null)
+                                camerasViewModel.resetSelectedCamera()
                             }
                         /* Guardamos el estado */
                         camerasViewModel.mode = FAV_MODE
@@ -265,11 +269,6 @@ class CamerasFragment : Fragment() {
                         camerasViewModel.adapter.setMode(NORMAL_MODE)
                         /* Mostramos la lista normal */
                         camerasViewModel.adapter.showNormalList()
-                        /* En caso de que no haya imagen al volver del modo favoritos,
-                        *  mostramos la seleccionada (si hubiera) */
-                        if (ivCamera.drawable == null) {
-                            bindImage(ivCamera, camerasViewModel.camera.value?.url)
-                        }
                         /* Guardamos el estado */
                         camerasViewModel.mode = NORMAL_MODE
                         /* Cambiamos el estado de la opción de resetear */

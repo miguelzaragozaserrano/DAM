@@ -1,10 +1,13 @@
 package com.miguelzaragoza.upm.dam.modules.ui.common
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.miguelzaragoza.upm.dam.binding.bindImage
 import com.miguelzaragoza.upm.dam.database.CameraDao
 import com.miguelzaragoza.upm.dam.databinding.ListViewItemBinding
 import com.miguelzaragoza.upm.dam.model.Camera
@@ -55,7 +58,7 @@ class CamerasAdapter(
      *
      *  @param query Cadena para filtrar por el nombre.
      */
-    fun filterByName(query: CharSequence?) {
+    fun filterByName(query: CharSequence?, ivCamera: ImageView, selectedCamera: Camera) {
         val list = mutableListOf<Camera>()
         if(mode == NORMAL_MODE){
             if(!query.isNullOrEmpty()) {
@@ -79,6 +82,11 @@ class CamerasAdapter(
             } else {
                 list.addAll(favoriteList)
             }
+        }
+        if(!list.contains(selectedCamera)){
+            ivCamera.setImageDrawable(null)
+        }else{
+            bindImage(ivCamera, selectedCamera.url)
         }
         submitList(list)
     }
@@ -210,12 +218,16 @@ class CamerasViewHolder private constructor(private val binding: ListViewItemBin
     }
 }
 
-/* Clase DiffUtil que nos permite no pintar la lista entera de nuevo */
+/**
+ *  Clase DiffUtil que nos permite no pintar la lista entera de nuevo
+ */
 class CamerasDiffCallback: DiffUtil.ItemCallback<Camera>(){
     override fun areItemsTheSame(oldItem: Camera, newItem: Camera): Boolean {
+        Log.d("hola", (oldItem.id == newItem.id).toString())
         return oldItem.id == newItem.id
     }
     override fun areContentsTheSame(oldItem: Camera, newItem: Camera): Boolean {
+        Log.d("HOLA", (oldItem.selected == newItem.selected && oldItem.fav == newItem.fav).toString())
         return oldItem.selected == newItem.selected && oldItem.fav == newItem.fav
     }
 }
