@@ -28,4 +28,6 @@
     <string name="loading_opening">… abriendo fichero …</string>
     <string name="loading_reading">… leyendo fichero …</string>
     <string name="loading_getting">… cargando cámaras …</string>
+    <string name="with_cluster">Con Cluster</string>
+    <string name="without_cluster">Sin Cluster</string>
 </resources>

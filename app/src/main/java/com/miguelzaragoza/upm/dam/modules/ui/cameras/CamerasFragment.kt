@@ -345,12 +345,12 @@ class CamerasFragment : Fragment() {
         builder.setTitle(getString(R.string.alert_cluster_title))
             .setMessage(getString(R.string.alert_cluster_message))
             .setPositiveButton(
-                getString(android.R.string.ok)
+                getString(R.string.with_cluster)
             ) { _, _ ->
                 camerasViewModel.cluster = true
             }
             .setNegativeButton(
-                getString(R.string.cancel_button)
+                getString(R.string.without_cluster)
             ) { _, _ ->
                 camerasViewModel.cluster = false
             }
