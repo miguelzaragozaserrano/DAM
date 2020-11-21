@@ -1,6 +1,5 @@
 package com.miguelzaragoza.upm.dam.modules.ui.common
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -223,11 +222,9 @@ class CamerasViewHolder private constructor(private val binding: ListViewItemBin
  */
 class CamerasDiffCallback: DiffUtil.ItemCallback<Camera>(){
     override fun areItemsTheSame(oldItem: Camera, newItem: Camera): Boolean {
-        Log.d("hola", (oldItem.id == newItem.id).toString())
         return oldItem.id == newItem.id
     }
     override fun areContentsTheSame(oldItem: Camera, newItem: Camera): Boolean {
-        Log.d("HOLA", (oldItem.selected == newItem.selected && oldItem.fav == newItem.fav).toString())
         return oldItem.selected == newItem.selected && oldItem.fav == newItem.fav
     }
 }
