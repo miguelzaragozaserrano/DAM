@@ -35,7 +35,7 @@ interface CameraDao {
      * @return Cámara solicitada
      */
     @Query("SELECT * from camera_table WHERE id = :id")
-    suspend fun get(id: Int): Camera?
+    fun get(id: Int): Camera?
 
     /**
      * Función suspendida que actualiza el valor "selected" de la cámara.
