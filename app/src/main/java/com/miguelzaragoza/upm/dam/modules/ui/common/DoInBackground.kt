@@ -9,6 +9,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.miguelzaragoza.upm.dam.R
 import com.miguelzaragoza.upm.dam.database.CameraDatabase
 import com.miguelzaragoza.upm.dam.model.Camera
 import com.miguelzaragoza.upm.dam.model.Cameras
@@ -66,19 +67,19 @@ class DoInBackground(
                 progressBar.progress = i
                 if(i == 0){
                     uiThread{
-                        textLoading.text = "...abriendo fichero..."
+                        textLoading.text = application.applicationContext.getString(R.string.loading_opening)
                     }
                     openFile()
                 }
                 if(i == 25){
                     uiThread{
-                        textLoading.text = "... leyendo fichero ..."
+                        textLoading.text = application.applicationContext.getString(R.string.loading_reading)
                     }
                     getCameras()
                 }
                 if(i == 75){
                     uiThread{
-                        textLoading.text = "... cargando cámaras ..."
+                        textLoading.text = application.applicationContext.getString(R.string.loading_getting)
                     }
                 }
                 SystemClock.sleep(1000)
