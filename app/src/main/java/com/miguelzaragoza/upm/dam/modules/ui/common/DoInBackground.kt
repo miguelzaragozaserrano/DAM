@@ -82,7 +82,7 @@ class DoInBackground(
                         textLoading.text = application.applicationContext.getString(R.string.loading_getting)
                     }
                 }
-                SystemClock.sleep(1000)
+                SystemClock.sleep(500)
                 i += 25
             }
             uiThread{
