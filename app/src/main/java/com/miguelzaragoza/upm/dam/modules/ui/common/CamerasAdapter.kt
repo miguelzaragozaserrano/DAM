@@ -2,11 +2,9 @@ package com.miguelzaragoza.upm.dam.modules.ui.common
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.miguelzaragoza.upm.dam.binding.bindImage
 import com.miguelzaragoza.upm.dam.database.CameraDao
 import com.miguelzaragoza.upm.dam.databinding.ListViewItemBinding
 import com.miguelzaragoza.upm.dam.model.Camera
@@ -56,8 +54,9 @@ class CamerasAdapter(
      *  del modo en el que se encuentre el adaptador.
      *
      *  @param query Cadena para filtrar por el nombre.
+     *  @return Lista con las cámaras filtradas.
      */
-    fun filterByName(query: CharSequence?, ivCamera: ImageView, selectedCamera: Camera) {
+    fun filterByName(query: CharSequence?): MutableList<Camera> {
         val list = mutableListOf<Camera>()
         if(mode == NORMAL_MODE){
             if(!query.isNullOrEmpty()) {
@@ -82,12 +81,8 @@ class CamerasAdapter(
                 list.addAll(favoriteList)
             }
         }
-        if(!list.contains(selectedCamera)){
-            ivCamera.setImageDrawable(null)
-        }else{
-            bindImage(ivCamera, selectedCamera.url)
-        }
         submitList(list)
+        return list
     }
 
     /**

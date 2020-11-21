@@ -13,7 +13,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.miguelzaragoza.upm.dam.MapActivity
 import com.miguelzaragoza.upm.dam.R
+import com.miguelzaragoza.upm.dam.binding.bindImage
 import com.miguelzaragoza.upm.dam.databinding.FragmentCamerasBinding
+import com.miguelzaragoza.upm.dam.model.Camera
 import com.miguelzaragoza.upm.dam.viewmodel.CamerasViewModelFactory
 
 /******************************* VARIABLES CONSTANTES ******************************
@@ -104,6 +106,7 @@ class CamerasFragment : Fragment() {
         *  resetear la lista de favoritos o no */
         camerasViewModel.database.getSize().observe(viewLifecycleOwner, { size ->
             enabled = size > 0
+            if(camerasViewModel.mode == NORMAL_MODE) enabled = true
             camerasViewModel.optionReset.isEnabled = enabled
         })
 
@@ -170,14 +173,17 @@ class CamerasFragment : Fragment() {
                 override fun onQueryTextSubmit(query: String?): Boolean {
                     return false
                 }
-
                 override fun onQueryTextChange(query: String?): Boolean {
+                    var list = mutableListOf<Camera>()
                     if (camerasViewModel.querySearched == "")
-                        camerasViewModel.camera.value?.let {
-                            camerasViewModel.adapter.filterByName(query, ivCamera,
-                                it
-                            )
-                        }
+                        list = camerasViewModel.adapter.filterByName(query)
+                    /* Actualizamos adecuadamente el ImageView */
+                    if(!list.contains(camerasViewModel.camera.value)){
+                        ivCamera.setImageDrawable(null)
+                    }else{
+                        if(ivCamera.drawable == null)
+                            bindImage(ivCamera, camerasViewModel.camera.value?.url)
+                    }
                     return true
                 }
             })
@@ -290,6 +296,7 @@ class CamerasFragment : Fragment() {
                                 CamerasFragmentDirections
                                     .actionCamerasFragmentToSplashFragment()
                             )
+                        camerasViewModel.resetSelectedCamera()
                         return true
                     }
                     FAV_MODE -> {
