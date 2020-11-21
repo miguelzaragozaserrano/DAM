@@ -90,7 +90,6 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
 
     init {
         _cameras.value = list
-
     }
 
     /*************************** FUNCIONES PRIVADAS ADAPTER ***************************
