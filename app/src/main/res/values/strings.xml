@@ -25,4 +25,7 @@
     <string name="toast_addfav">Cámara añadida a favoritos</string>
     <string name="toast_remfav">Cámara eliminada de favoritos</string>
     <string name="title_activity_map">MapActivity</string>
+    <string name="loading_opening">… abriendo fichero …</string>
+    <string name="loading_reading">… leyendo fichero …</string>
+    <string name="loading_getting">… cargando cámaras …</string>
 </resources>
