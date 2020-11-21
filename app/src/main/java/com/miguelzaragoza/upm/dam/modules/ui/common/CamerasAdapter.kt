@@ -2,6 +2,7 @@ package com.miguelzaragoza.upm.dam.modules.ui.common
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -126,11 +127,15 @@ class CamerasAdapter(
      *
      * @param camera Cámara que eliminamos de la base de datos.
      */
-    suspend fun removeFavorite(camera: Camera){
+    suspend fun removeFavorite(camera: Camera, ivCamera: ImageView){
         withContext(Dispatchers.IO){
             database.remove(camera)
         }
         if(mode == FAV_MODE) showFavoriteList()
+        if(camera.selected){
+            ivCamera.setImageDrawable(null)
+            camera.selected = false
+        }
     }
 
     /**

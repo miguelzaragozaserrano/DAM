@@ -1,6 +1,8 @@
 package com.miguelzaragoza.upm.dam.modules.ui.loading
 
 import android.animation.ValueAnimator
+import android.content.pm.ActivityInfo
+import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -36,6 +38,9 @@ class LoadingFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        /* Bloqueamos rotar la pantalla */
+        requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+
         val binding = FragmentLoadingBinding.inflate(inflater)
 
         /* Permite a Data Binding observar LiveData con el lifecycle de su Fragment */
@@ -46,7 +51,12 @@ class LoadingFragment : Fragment() {
         animator.addUpdateListener { animation ->
                     binding.progressCircle.progress = animation.animatedValue as Int }
 
-        DoInBackground(binding.progressHorizontal, requireNotNull(this.activity).application, binding.textLoading)
+        /* Creamos la tarea en segundo plano */
+        DoInBackground(
+                binding.progressHorizontal,
+                requireNotNull(this.activity).application,
+                binding.textLoading
+        )
 
         return binding.root
     }

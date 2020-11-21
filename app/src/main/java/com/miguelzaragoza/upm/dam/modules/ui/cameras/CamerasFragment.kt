@@ -1,6 +1,7 @@
 package com.miguelzaragoza.upm.dam.modules.ui.cameras
 
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.*
@@ -50,11 +51,18 @@ class CamerasFragment : Fragment() {
     /* Variables privadas */
     private var enabled = true
     private lateinit var searchView: SearchView
-    private lateinit var ivCamera: ImageView
     private lateinit var iconOrder: MenuItem
 
-    /******************************* FUNCIONES OVERRIDE *******************************
-     **********************************************************************************/
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        /* Observamos el tamaño de la base de datos para permitir
+       *  resetear la lista de favoritos o no */
+        camerasViewModel.database.getSize().observe(viewLifecycleOwner, { size ->
+            enabled = size > 0
+            if(camerasViewModel.mode == NORMAL_MODE) enabled = true
+            else camerasViewModel.optionReset.isEnabled = enabled
+        })
+    }
 
     /**
      * Función que se llama para instanciar la vista de interfaz de usuario (UI).
@@ -73,6 +81,9 @@ class CamerasFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        /* Permitimos rotar la pantalla */
+        requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+
         /* Indicamos que va a existir un menú de opciones */
         setHasOptionsMenu(true)
 
@@ -86,7 +97,7 @@ class CamerasFragment : Fragment() {
         binding.camerasList.adapter = camerasViewModel.adapter
 
         /* Guardamos el ImageView como variable */
-        ivCamera = binding.cameraImage
+        camerasViewModel.ivCamera = binding.cameraImage
 
         /* Observamos la variable navigateToSelectedCamera. Si toma un valor distinto de null,
         *  es debido a que se ha pulsado una imagen y por tanto navegamos al segundo activity */
@@ -100,14 +111,6 @@ class CamerasFragment : Fragment() {
                 intent.putExtra("cluster", camerasViewModel.cluster)
                 startActivity(intent)
             }
-        })
-
-        /* Observamos el tamaño de la base de datos para permitir
-        *  resetear la lista de favoritos o no */
-        camerasViewModel.database.getSize().observe(viewLifecycleOwner, { size ->
-            enabled = size > 0
-            if(camerasViewModel.mode == NORMAL_MODE) enabled = true
-            camerasViewModel.optionReset.isEnabled = enabled
         })
 
         /* Recogemos la lista de cámaras que se pasa entre fragmentos solamente si la lista
@@ -179,10 +182,10 @@ class CamerasFragment : Fragment() {
                         list = camerasViewModel.adapter.filterByName(query)
                     /* Actualizamos adecuadamente el ImageView */
                     if(!list.contains(camerasViewModel.camera.value)){
-                        ivCamera.setImageDrawable(null)
+                        camerasViewModel.ivCamera.setImageDrawable(null)
                     }else{
-                        if(ivCamera.drawable == null)
-                            bindImage(ivCamera, camerasViewModel.camera.value?.url)
+                        if(camerasViewModel.ivCamera.drawable == null)
+                            bindImage(camerasViewModel.ivCamera, camerasViewModel.camera.value?.url)
                     }
                     return true
                 }
@@ -256,7 +259,7 @@ class CamerasFragment : Fragment() {
                         /* Y en caso de que al cambiar no sea favorita */
                             if (!camerasViewModel.camera.value!!.fav) {
                                 /* Quitamos la imagen y la cámara */
-                                ivCamera.setImageDrawable(null)
+                                camerasViewModel.ivCamera.setImageDrawable(null)
                                 camerasViewModel.resetSelectedCamera()
                             }
                         /* Guardamos el estado */
@@ -377,7 +380,7 @@ class CamerasFragment : Fragment() {
                 getString((android.R.string.ok))
             ) { _, _ ->
                 camerasViewModel.reset()
-                ivCamera.setImageDrawable(null)
+                camerasViewModel.ivCamera.setImageDrawable(null)
             }
             .setNegativeButton(
                 getString(R.string.cancel_button)

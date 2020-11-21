@@ -3,6 +3,7 @@ package com.miguelzaragoza.upm.dam.modules.ui.cameras
 import android.app.Application
 import android.graphics.drawable.Drawable
 import android.view.MenuItem
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
@@ -60,6 +61,7 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
     var focus: Boolean = false
     var cluster: Boolean = false
     var querySearched: String = ""
+    lateinit var ivCamera: ImageView
     var showAllCameras: Boolean = false
     lateinit var optionReset: MenuItem
     var iconFav: Drawable? = ContextCompat
@@ -126,7 +128,7 @@ class CamerasViewModel(application: Application): AndroidViewModel(application) 
             /* En caso contrario, la eliminamos de Room */
             else{
                 coroutineScope.launch {
-                    adapter.removeFavorite(camera)
+                    adapter.removeFavorite(camera, ivCamera)
                 }
                 Toast.makeText(context, context.getString(R.string.toast_remfav), Toast.LENGTH_LONG).show()
             }
