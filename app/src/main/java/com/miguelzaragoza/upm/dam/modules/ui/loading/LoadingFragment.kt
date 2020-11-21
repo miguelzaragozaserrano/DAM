@@ -1,34 +1,20 @@
 package com.miguelzaragoza.upm.dam.modules.ui.loading
 
+import android.animation.ValueAnimator
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import com.miguelzaragoza.upm.dam.database.CameraDatabase
 import com.miguelzaragoza.upm.dam.databinding.FragmentLoadingBinding
-import com.miguelzaragoza.upm.dam.viewmodel.LoadingViewModelFactory
+import com.miguelzaragoza.upm.dam.modules.ui.common.DoInBackground
 
 /**
 * Fragment que muestra la primera pantalla
 * donde aparece un mensaje de "cargando".
 */
 class LoadingFragment : Fragment() {
-
-    /******************************** VARIABLES BÁSICAS ********************************
-     ***********************************************************************************/
-
-    /**
-     * Inicializamos con lazy nuestro [LoadingViewModel] para crearlo con un método
-     * lifecycle apropiado.
-     */
-    private val loadingViewModel: LoadingViewModel by lazy{
-        val application = requireNotNull(this.activity).application
-        ViewModelProvider(this, LoadingViewModelFactory(application))
-                .get(LoadingViewModel::class.java)
-    }
 
     /******************************* FUNCIONES OVERRIDE *******************************
      **********************************************************************************/
@@ -56,28 +42,33 @@ class LoadingFragment : Fragment() {
         binding.lifecycleOwner = this
 
         /* Le asignamos al ProgressBar Circle la animación que nos interesa */
-        loadingViewModel.animator
-                .addUpdateListener { animation ->
+        val animator: ValueAnimator = ValueAnimator.ofInt(0, 100)
+        animator.addUpdateListener { animation ->
                     binding.progressCircle.progress = animation.animatedValue as Int }
 
-        /* Observamos la variable navigateToCamerasFragment. Si toma un valor distinto de null,
-        *  es debido a que se ha completado el ProgressBar Horizontal
-        *  y por tanto navegamos a un segundo fragment */
-        loadingViewModel.navigateToCamerasFragment.observe(viewLifecycleOwner, {
-            if(it != null) findNavController()
-                    .navigate(LoadingFragmentDirections
-                            .actionSplashFragmentToCamerasFragment(loadingViewModel.list)
-                    )
-        })
-
-        /* Observamos la variable increaseProgressBar. Si toma un valor distinto de null,
-        *  es debido a que se ha detectado un tick del objeto CountDownTimer y por tanto
-        *  queremos aumentar el ProgressBar Horizontal */
-        loadingViewModel.increaseProgressBar.observe(viewLifecycleOwner, {
-            if(it != null) binding.millisUntilFinished = loadingViewModel.millisUntilFinished
-        })
+        DoInBackground(binding.progressHorizontal, requireNotNull(this.activity).application, binding.textLoading)
 
         return binding.root
+    }
+
+    override fun onPause() {
+        super.onPause()
+        DoInBackground.navigateToCamerasFragment.removeObservers(viewLifecycleOwner)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        DoInBackground.navigateToCamerasFragment.observe(viewLifecycleOwner, {
+            if(it != null) findNavController()
+                .navigate(LoadingFragmentDirections
+                    .actionSplashFragmentToCamerasFragment(DoInBackground.list)
+                )
+        })
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        DoInBackground.showListComplete()
     }
 
 }
