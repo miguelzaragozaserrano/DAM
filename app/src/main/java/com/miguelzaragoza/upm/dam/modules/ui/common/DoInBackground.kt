@@ -113,7 +113,6 @@ class DoInBackground(
             var typeEvent: Int
             /* Repetimos el bucle hasta el final del documento */
             do{
-                Log.d("HOLa", "getCameras")
                 typeEvent = parser.eventType
                 if(typeEvent == XmlPullParser.START_TAG){
                     /* Analizamos el nombre de la etiqueta */
@@ -145,7 +144,6 @@ class DoInBackground(
                         }
                         /* Si es "coordinates" ... */
                         "coordinates" -> {
-                            Log.d("HOLa", "coordinates")
                             /* Ejecutamos un hio independiente al secundario para obtener
                             *  el siguiente texto y guardarlo en la variable coordinates */
 

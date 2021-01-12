@@ -2,6 +2,7 @@ package com.miguelzaragoza.upm.dam.binding
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.widget.ImageView
 import androidx.core.net.toUri
 import androidx.databinding.BindingAdapter
@@ -21,6 +22,7 @@ import com.miguelzaragoza.upm.dam.model.Camera
 import com.miguelzaragoza.upm.dam.model.Cameras
 import com.miguelzaragoza.upm.dam.model.MyCluster
 import com.miguelzaragoza.upm.dam.modules.ui.common.CamerasAdapter
+import com.miguelzaragoza.upm.dam.modules.utils.GlideApp
 
 /**
  * Función que asigna la imagen de la cámara que se clickea al ImageView.
@@ -32,8 +34,9 @@ import com.miguelzaragoza.upm.dam.modules.ui.common.CamerasAdapter
 fun bindImage(imgView: ImageView, imgUrl: String?){
     imgUrl?.let{
         val imgUri = imgUrl.toUri().buildUpon().scheme("http").build()
-        Glide.with(imgView.context)
+        GlideApp.with(imgView.context)
                 .load(imgUri)
+                .timeout(60000)
                 .apply(RequestOptions()
                         .placeholder(R.drawable.loading_animation)
                         .error(R.drawable.broken_image))
